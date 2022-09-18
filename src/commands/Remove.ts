@@ -1,4 +1,5 @@
 import { command, Command, CommandContext, Utils } from "@lib";
+import {ApplicationCommandOptionType} from "discord.js";
 
 @command({ 
     name: "remove", 
@@ -7,7 +8,7 @@ import { command, Command, CommandContext, Utils } from "@lib";
         {
             name: "index",
             description: "The index of the track to remove.",
-            type: "INTEGER",
+            type: ApplicationCommandOptionType.Integer,
             required: true
         }
     ]

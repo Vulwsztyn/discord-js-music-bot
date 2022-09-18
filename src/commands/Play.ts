@@ -2,6 +2,7 @@ import { command, Command, CommandContext, MessageChannel, Utils } from "@lib";
 import { SpotifyItemType } from "@lavaclient/spotify";
 
 import type { Addable } from "@lavaclient/queue";
+import { ApplicationCommandOptionType } from "discord.js";
 
 @command({
     name: "play",
@@ -10,13 +11,13 @@ import type { Addable } from "@lavaclient/queue";
         {
             name: "query",
             description: "The search query.",
-            type: "STRING",
+            type: ApplicationCommandOptionType.String,
             required: true
         },
         {
             name: "next",
             description: "Whether to add the results to the top of the queue.",
-            type: "BOOLEAN",
+            type: ApplicationCommandOptionType.Boolean,
             required: false
         }
     ]

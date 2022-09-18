@@ -1,4 +1,4 @@
-import { MessageEmbed, MessageEmbedOptions } from "discord.js";
+import { EmbedBuilder, EmbedData } from "discord.js";
 import { lstatSync, readdirSync } from "fs";
 import { join } from "path";
 
@@ -11,11 +11,11 @@ export type MessageChannel = TextChannel | ThreadChannel | NewsChannel;
 export abstract class Utils {
     static PRIMARY_COLOR = 0xfff269;
 
-    static embed(embed: MessageEmbedOptions | string): MessageEmbed {
-        const options: MessageEmbedOptions = typeof embed === "string" ? { description: embed } : embed;
+    static embed(embed: EmbedData | string) {
+        const options: EmbedData = typeof embed === "string" ? { description: embed } : embed;
         options.color ??= Utils.PRIMARY_COLOR;
 
-        return new MessageEmbed(options);
+        return new EmbedBuilder(options);
     }
 
     static walk(directory: string): string[] {

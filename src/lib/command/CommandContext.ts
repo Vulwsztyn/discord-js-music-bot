@@ -1,6 +1,6 @@
-import { Guild, Message, MessageEmbed } from "discord.js";
+import { Guild, Message, EmbedBuilder } from "discord.js";
 import type { Client, CommandInteraction, InteractionReplyOptions, User } from "discord.js";
-import type { APIMessage } from "discord-api-types";
+import type { APIMessage } from "discord-api-types/v10";
 import { Player } from "lavaclient";
 import type { MessageChannel } from "../index";
 
@@ -32,18 +32,18 @@ export class CommandContext {
     }
 
     /* overloads: not fetching the reply */
-    reply(content: MessageEmbed, options?: Omit<InteractionReplyOptions, "embeds">): Promise<void>
+    reply(content: EmbedBuilder, options?: Omit<InteractionReplyOptions, "embeds">): Promise<void>
     reply(content: string, options?: Omit<InteractionReplyOptions, "content">): Promise<void>
     reply(options: InteractionReplyOptions): Promise<void>
 
     /* overloads: fetch reply */
-    reply(content: MessageEmbed, options?: Omit<InteractionReplyOptions, "embeds"> & { fetchReply: true }): Promise<Message | APIMessage>
+    reply(content: EmbedBuilder, options?: Omit<InteractionReplyOptions, "embeds"> & { fetchReply: true }): Promise<Message | APIMessage>
     reply(content: string, options?: Omit<InteractionReplyOptions, "content"> & { fetchReply: true }): Promise<Message | APIMessage>
     reply(options: InteractionReplyOptions & { fetchReply: true }): Promise<Message | APIMessage>;
 
     /* actual method */
-    reply(content: string | MessageEmbed | InteractionReplyOptions, options: InteractionReplyOptions = {}): Promise<any> {
-        if (typeof content === "string" || content instanceof MessageEmbed) {
+    reply(content: string | EmbedBuilder | InteractionReplyOptions, options: InteractionReplyOptions = {}): Promise<any> {
+        if (typeof content === "string" || content instanceof EmbedBuilder) {
             return this.interaction.reply({
                 [typeof content === "string" ? "content" : "embeds"]: typeof content === "string"
                     ? content
