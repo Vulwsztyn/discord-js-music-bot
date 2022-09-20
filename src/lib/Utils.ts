@@ -11,6 +11,10 @@ export type MessageChannel = TextChannel | ThreadChannel | NewsChannel;
 export abstract class Utils {
     static PRIMARY_COLOR = 0xfff269;
 
+    static embedded(embed: EmbedData | string) {
+        return {embeds:[Utils.embed(embed)]};
+    }
+
     static embed(embed: EmbedData | string) {
         const options: EmbedData = typeof embed === "string" ? { description: embed } : embed;
         options.color ??= Utils.PRIMARY_COLOR;

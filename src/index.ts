@@ -3,6 +3,7 @@ import "module-alias/register";
 import { load } from "@lavaclient/spotify";
 import { Utils, Bot, CommandContext } from "@lib";
 import { join } from "path";
+import {CacheType, Interaction} from "discord.js";
 
 load({
     client: {
@@ -37,7 +38,7 @@ client.on("ready", async () => {
     console.log("[discord] ready!");
 });
 
-client.on("interactionCreate", interaction => {
+client.on("interactionCreate", (interaction: Interaction<CacheType>) => {
     if (interaction.isCommand()) {
         const options = Object.assign({}, ...interaction.options.data.map(i => {
             const value = i.role ?? i.channel ?? i.member ?? i.user ?? i.value;
