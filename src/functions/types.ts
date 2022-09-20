@@ -20,3 +20,7 @@ export type PlayParams = CommonParams & {
 }
 
 export type SkipParams = CommonParams
+
+export type SeekParams = CommonParams & {
+    position: string
+}

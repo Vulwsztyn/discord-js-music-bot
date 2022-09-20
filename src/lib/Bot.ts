@@ -3,7 +3,7 @@ import {Node} from "lavaclient";
 
 import {Command} from "./command/Command";
 import {Utils} from "./Utils";
-import {Join as JoinFn, Play as PlayFn, Skip as SkipFn} from "../functions"
+import {Join as JoinFn, Play as PlayFn, Skip as SkipFn, Seek} from "../functions"
 
 export class Bot extends Client {
     readonly music: Node;
@@ -103,6 +103,21 @@ export class Bot extends Client {
                     send,
                     sendIfError: send,
                     guildId: data.guild_id
+                }
+            )
+        }
+        this.messageCommands["seek"] = async (data: any, textChannel: TextChannel, message: Message<true>) => {
+            const vc = this.guilds.cache.get(data.guild_id)?.voiceStates.cache.get(message.author.id)?.channel
+            const send = (t: string) => message.reply({embeds: [Utils.embed(t)]})
+            await Seek(
+                {
+                    vc,
+                    client: this,
+                    channel: textChannel,
+                    send,
+                    sendIfError: send,
+                    guildId: data.guild_id,
+                    position: message.content.split(" ").slice(1).join(" ")
                 }
             )
         }
