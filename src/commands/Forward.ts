@@ -6,18 +6,18 @@ import {ApplicationCommandOptionType} from "discord.js";
 import {Seek as SeekFn} from "../functions";
 
 @command({
-    name: "seek",
-    description: "Seeks a position in current song",
+    name: "forward",
+    description: "Forwards current song",
     options: [
         {
             name: "position",
-            description: "The position to seek to.",
+            description: "How much to forward (in seconds)",
             type: ApplicationCommandOptionType.String,
             required: true
         },
     ]
 })
-export default class Seek extends Command {
+export default class Forward extends Command {
     async exec(ctx: CommandContext, {position}: { position: string }) {
         await SeekFn({
             vc: ctx.guild?.voiceStates?.cache?.get(ctx.user.id)?.channel,
@@ -30,7 +30,7 @@ export default class Seek extends Command {
             sendIfError: (t: string) => ctx.reply(Utils.embed(t), {ephemeral: true}),
             guildId: ctx.guild!.id,
             position,
-            add: false
+            add: true
         })
     }
 }

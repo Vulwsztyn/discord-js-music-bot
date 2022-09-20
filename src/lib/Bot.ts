@@ -106,7 +106,7 @@ export class Bot extends Client {
                 }
             )
         }
-        this.messageCommands["seek"] = async (data: any, textChannel: TextChannel, message: Message<true>) => {
+        const seekFn = (add: boolean, prefix: string = '') =>async (data: any, textChannel: TextChannel, message: Message<true>) => {
             const vc = this.guilds.cache.get(data.guild_id)?.voiceStates.cache.get(message.author.id)?.channel
             const send = (t: string) => message.reply({embeds: [Utils.embed(t)]})
             await Seek(
@@ -117,10 +117,14 @@ export class Bot extends Client {
                     send,
                     sendIfError: send,
                     guildId: data.guild_id,
-                    position: message.content.split(" ").slice(1).join(" ")
+                    position: prefix+(message.content.split(" ").slice(1).join(" ")),
+                    add
                 }
             )
         }
+        this.messageCommands["seek"] = seekFn(false)
+        this.messageCommands["forward"] = seekFn(true)
+        this.messageCommands["back"] = seekFn(true, '-')
     }
 }
 

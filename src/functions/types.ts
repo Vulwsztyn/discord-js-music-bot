@@ -23,4 +23,5 @@ export type SkipParams = CommonParams
 
 export type SeekParams = CommonParams & {
     position: string
+    add: boolean
 }

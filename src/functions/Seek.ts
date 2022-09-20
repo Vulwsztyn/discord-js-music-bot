@@ -13,14 +13,12 @@ export async function Seek({
                                client,
                                guildId,
                                position,
+                                add
                            }: SeekParams) {
     if (!vc) {
         return sendIfError("Join a voice channel bozo")
     }
-    const positionNumerised = Utils.stringToMilliseconds(position)
-    if (isNaN(positionNumerised)) {
-        return sendIfError("Position must be a number")
-    }
+
     /* check if a player already exists, if so check if the invoker is in our vc. */
     let player = client.music.players.get(guildId)
     if (player && player.channelId !== vc.id) {
@@ -33,6 +31,10 @@ export async function Seek({
     if (!current) {
         return sendIfError("I'm not playing anything bozo")
     }
+    const positionNumerised = (add ? player.position || 0 : 0)  + Utils.stringToMilliseconds(position);
+    if (isNaN(positionNumerised)) {
+        return sendIfError("Position must be a number")
+    }
     await player.seek(positionNumerised)
-    await send(`Sought ${current.title} to ${position}`)
+    await send(`Sought ${current.title} to ${positionNumerised}`)
 }
