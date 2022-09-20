@@ -3,7 +3,7 @@ import {Node} from "lavaclient";
 
 import {Command} from "./command/Command";
 import {Utils} from "./Utils";
-import {Join as JoinFn, Play as PlayFn} from "../functions"
+import {Join as JoinFn, Play as PlayFn, Skip as SkipFn} from "../functions"
 
 export class Bot extends Client {
     readonly music: Node;
@@ -58,8 +58,6 @@ export class Bot extends Client {
 
     attachMessageCommands() {
         this.messageCommands["join"] = async (data: any, textChannel: TextChannel, message: Message<true>) => {
-            // await message.reply({embeds:[Utils.embed(message.content)]})
-            // await message.reply({embeds:[Utils.embed("huj")]})
             const vc = this.guilds.cache.get(data.guild_id)?.voiceStates.cache.get(message.author.id)?.channel
             const send = (t: string) => message.reply({embeds: [Utils.embed(t)]})
             await JoinFn(
@@ -69,6 +67,7 @@ export class Bot extends Client {
                     channel: textChannel,
                     send,
                     sendIfError: send,
+                    guildId: data.guild_id
                 }
             )
         }
@@ -92,6 +91,21 @@ export class Bot extends Client {
 
         this.messageCommands["play"] = playFn(false)
         this.messageCommands["playnext"] = playFn(true)
+
+        this.messageCommands["skip"] = async (data: any, textChannel: TextChannel, message: Message<true>) => {
+            const vc = this.guilds.cache.get(data.guild_id)?.voiceStates.cache.get(message.author.id)?.channel
+            const send = (t: string) => message.reply({embeds: [Utils.embed(t)]})
+            await SkipFn(
+                {
+                    vc,
+                    client: this,
+                    channel: textChannel,
+                    send,
+                    sendIfError: send,
+                    guildId: data.guild_id
+                }
+            )
+        }
     }
 }
 

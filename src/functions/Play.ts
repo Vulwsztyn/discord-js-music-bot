@@ -4,8 +4,6 @@ import {SpotifyItemType} from "@lavaclient/spotify";
 import type {Addable} from "@lavaclient/queue";
 import {ApplicationCommandOptionType, VoiceBasedChannel} from "discord.js";
 import {PlayParams} from "./types";
-import {channel} from "diagnostics_channel";
-import {start} from "repl";
 
 
 export async function Play({
@@ -81,7 +79,7 @@ export async function Play({
 
     /* reply with the queued message. */
     const started = player.playing || player.paused;
-    await send(msg, "At the top of the queue.", started)
+    await send(msg, next ? "At the top of the queue." : "", started)
 
     /* do queue tings. */
     player.queue.add(tracks, {requester, next});

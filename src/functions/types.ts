@@ -8,6 +8,7 @@ type CommonParams = {
     sendIfError: (text: string, ...rest: any[]) => Promise<any>
     channel: MessageChannel
     client: Client
+    guildId: string
 }
 
 export type JoinParams = CommonParams
@@ -16,5 +17,6 @@ export type PlayParams = CommonParams & {
     query: string,
     next?: boolean,
     requester?: string
-    guildId: string
 }
+
+export type SkipParams = CommonParams

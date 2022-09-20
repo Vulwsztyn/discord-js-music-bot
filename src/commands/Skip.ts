@@ -2,15 +2,14 @@ import {
     command,
     Command,
     CommandContext,
-    MessageChannel,
     Utils,
 } from "@lib";
-import {Join as JoinFn} from "../functions"
+import {Skip as SkipFn} from "../functions"
 
-@command({name: "join", description: "Joins the member's voice channel."})
-export default class Join extends Command {
+@command({name: "skip", description: "Skips the current song."})
+export default class Skip extends Command {
     async exec(ctx: CommandContext) {
-        await JoinFn({
+        await SkipFn({
             vc: ctx.guild?.voiceStates?.cache?.get(ctx.user.id)?.channel,
             client: ctx.client,
             channel: ctx.channel,
