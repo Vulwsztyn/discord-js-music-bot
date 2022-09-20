@@ -85,4 +85,15 @@ export abstract class Utils {
             client.commands.set(command.ref.id, command);
         }
     }
+
+    static stringToMilliseconds(str: string) {
+        const [secondsWithMicro, minutesStr, hoursStr] = str.split(":").reverse()
+        const [secondsStr,microsecondsStr] = secondsWithMicro.split(".")
+        const hours = hoursStr ? parseInt(hoursStr) : 0
+        const minutes = minutesStr ? parseInt(minutesStr) : 0
+        const seconds = secondsStr ? parseInt(secondsStr) : 0
+        const milliseconds = microsecondsStr ? parseInt(microsecondsStr.padEnd(4, '0')) : 0
+        return (hours * 60 * 60 * 1000) + (minutes * 60 * 1000) + (seconds * 1000) + milliseconds
+    }
+
 }

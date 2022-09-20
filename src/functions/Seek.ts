@@ -17,7 +17,7 @@ export async function Seek({
     if (!vc) {
         return sendIfError("Join a voice channel bozo")
     }
-    const positionNumerised = Number(position)
+    const positionNumerised = Utils.stringToMilliseconds(position)
     if (isNaN(positionNumerised)) {
         return sendIfError("Position must be a number")
     }
