@@ -72,9 +72,8 @@ export class Bot extends Client {
                 }
             )
         }
-        this.messageCommands["play"] = async (data: any, textChannel: TextChannel, message: Message<true>) => {
-            // await message.reply({embeds:[Utils.embed(message.content)]})
-            // await message.reply({embeds:[Utils.embed("huj")]})
+
+        const playFn = (next: boolean) => async (data: any, textChannel: TextChannel, message: Message<true>) => {
             const vc = this.guilds.cache.get(data.guild_id)?.voiceStates.cache.get(message.author.id)?.channel
             const send = (t: string, t2:string) => message.reply({embeds: [Utils.embed(`${t} ${t2}`)]})
             await PlayFn(
@@ -85,11 +84,14 @@ export class Bot extends Client {
                     send,
                     sendIfError: send,
                     query: message.content.split(" ").slice(1).join(" "),
-                    next: false,
+                    next,
                     guildId: data.guild_id
                 }
             )
         }
+
+        this.messageCommands["play"] = playFn(false)
+        this.messageCommands["playnext"] = playFn(true)
     }
 }
 
