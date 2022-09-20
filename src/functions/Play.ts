@@ -82,11 +82,12 @@ export async function Play({
     if (msg !== '') { //TODO: make it better (this checks if play was used to unpause)
         await send(msg, next ? "At the top of the queue." : "", started)
         player.queue.add(tracks, {requester, next});
-        await player.queue.start()
     } else {
         await send("Resumed playback")
-        await player.queue.start()
+        await player.pause(false)
     }
     /* do queue tings. */
-    await player.pause(false)
+    if (!started) {
+        await player.queue.start()
+    }
 }
