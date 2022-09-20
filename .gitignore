@@ -16,3 +16,9 @@ node_modules/
 
 # yarn lock files
 *.lock
+
+application.yml
+
+Lavalink.jar
+
+logs/
