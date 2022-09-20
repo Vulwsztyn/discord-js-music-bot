@@ -1,9 +1,9 @@
 import {Channel, Client, Collection, GatewayDispatchEvents, Message, Snowflake, TextChannel} from "discord.js";
-import { Node } from "lavaclient";
+import {Node} from "lavaclient";
 
-import { Command } from "./command/Command";
+import {Command} from "./command/Command";
 import {Utils} from "./Utils";
-import {Join as JoinFn} from "../functions"
+import {Join as JoinFn, Play as PlayFn} from "../functions"
 
 export class Bot extends Client {
     readonly music: Node;
@@ -11,6 +11,7 @@ export class Bot extends Client {
 
     readonly messageCommands: Record<string, any> = {}
     readonly prefix = process.env.PREFIX || "!"
+
     constructor() {
         super({
             intents: ["Guilds", "GuildMessages", "GuildVoiceStates", "MessageContent"],
@@ -33,18 +34,24 @@ export class Bot extends Client {
             await this.handleMessage(data)
 
         });
-        this.ws.on(GatewayDispatchEvents.MessageUpdate, data => console.log(JSON.stringify({...data, myType:"update"}, null, 2)));
+        this.ws.on(GatewayDispatchEvents.MessageUpdate, data => console.log(JSON.stringify({
+            ...data,
+            myType: "update"
+        }, null, 2)));
     }
 
     async handleMessage(data: any) {
-        const channel  = this.channels.cache.get(data.channel_id) as TextChannel
+        const channel = this.channels.cache.get(data.channel_id) as TextChannel
         const message = await channel.messages.fetch(data.id)
-        console.log(JSON.stringify({...data, myType:"create", prefixed: message.content.startsWith(this.prefix) }, null, 2))
+        console.log(JSON.stringify({
+            ...data,
+            myType: "create",
+            prefixed: message.content.startsWith(this.prefix)
+        }, null, 2))
         if (message.content.startsWith(this.prefix)) {
             const command = message.content.split(" ")[0].slice(this.prefix.length)
-            console.log(command)
             if (command in this.messageCommands) {
-                await this.messageCommands[command](data,channel,message)
+                await this.messageCommands[command](data, channel, message)
             }
         }
     }
@@ -54,17 +61,35 @@ export class Bot extends Client {
             // await message.reply({embeds:[Utils.embed(message.content)]})
             // await message.reply({embeds:[Utils.embed("huj")]})
             const vc = this.guilds.cache.get(data.guild_id)?.voiceStates.cache.get(message.author.id)?.channel
-            const createPlayer = () => this.music.createPlayer(data.guild_id)
-            const send = (t: string) => message.reply({embeds:[Utils.embed(t)]})
+            const send = (t: string) => message.reply({embeds: [Utils.embed(t)]})
             await JoinFn(
-                vc,
-                createPlayer,
-                textChannel,
-                send,
-                send,
+                {
+                    vc,
+                    client: this,
+                    channel: textChannel,
+                    send,
+                    sendIfError: send,
+                }
             )
         }
-
+        this.messageCommands["play"] = async (data: any, textChannel: TextChannel, message: Message<true>) => {
+            // await message.reply({embeds:[Utils.embed(message.content)]})
+            // await message.reply({embeds:[Utils.embed("huj")]})
+            const vc = this.guilds.cache.get(data.guild_id)?.voiceStates.cache.get(message.author.id)?.channel
+            const send = (t: string, t2:string) => message.reply({embeds: [Utils.embed(`${t} ${t2}`)]})
+            await PlayFn(
+                {
+                    vc,
+                    client: this,
+                    channel: textChannel,
+                    send,
+                    sendIfError: send,
+                    query: message.content.split(" ").slice(1).join(" "),
+                    next: false,
+                    guildId: data.guild_id
+                }
+            )
+        }
     }
 }
 
