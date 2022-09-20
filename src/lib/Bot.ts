@@ -149,8 +149,8 @@ export class Bot extends Client {
         this.messageCommands["leave"] = genericFn(Leave)
         this.messageCommands["nightcore"] = genericFn(Nightcore)
         this.messageCommands["ping"] = genericFn(Ping)
-        this.messageCommands["piwo"] = async (data: any, textChannel: TextChannel, _message: Message<true>) => playFn(false, "https://www.youtube.com/watch?v=hbsT9OOqvzw")(data, textChannel, _message)
-        this.messageCommands["piwonext"] = async (data: any, textChannel: TextChannel, _message: Message<true>) => playFn(true, "https://www.youtube.com/watch?v=hbsT9OOqvzw")(data, textChannel, _message)
+        this.messageCommands["piwo"] = async (data: any, textChannel: TextChannel, message: Message<true>) => playFn(false, "https://www.youtube.com/watch?v=hbsT9OOqvzw")(data, textChannel, message)
+        this.messageCommands["piwonext"] = async (data: any, textChannel: TextChannel, message: Message<true>) => playFn(true, "https://www.youtube.com/watch?v=hbsT9OOqvzw")(data, textChannel, message)
         this.messageCommands["queue"] = this.messageCommands["remove"] = async (data: any, textChannel: TextChannel, message: Message<true>) => {
             const guild = this.guilds.cache.get(data.guild_id)
             const vc = guild?.voiceStates.cache.get(message.author.id)?.channel
