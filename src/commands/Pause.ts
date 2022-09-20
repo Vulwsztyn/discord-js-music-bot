@@ -6,7 +6,7 @@ import {
 } from "@lib";
 import {Pause as PauseFn} from "../functions"
 
-@command({name: "join", description: "Pauses the playback."})
+@command({name: "pause", description: "Pauses the playback."})
 export default class Pause extends Command {
     async exec(ctx: CommandContext) {
         await PauseFn({

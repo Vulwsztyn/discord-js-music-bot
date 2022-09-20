@@ -6,7 +6,7 @@ import {
 } from "@lib";
 import {Resume as ResumeFn} from "../functions"
 
-@command({name: "join", description: "Resumes the playback."})
+@command({name: "resume", description: "Resumes the playback."})
 export default class Resume extends Command {
     async exec(ctx: CommandContext) {
         await ResumeFn({
