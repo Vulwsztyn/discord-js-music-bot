@@ -1,14 +1,14 @@
-import {Client, VoiceBasedChannel} from "discord.js";
+import {Client, Guild, VoiceBasedChannel} from "discord.js";
 import {MessageChannel} from "@lib";
 import {SpotifyManager} from "@lavaclient/spotify";
 
-type CommonParams = {
+export type CommonParams = {
     vc: VoiceBasedChannel | null | undefined
     send: (text: string, ...rest: any[]) => Promise<any>
     sendIfError: (text: string, ...rest: any[]) => Promise<any>
     channel: MessageChannel
     client: Client
-    guildId: string
+    guild: Guild | null | undefined
 }
 
 export type JoinParams = CommonParams
@@ -25,3 +25,23 @@ export type SeekParams = CommonParams & {
     position: string
     add: boolean
 }
+
+export type LeaveParams = CommonParams
+
+export type NightcoreParams = CommonParams & {
+    speed?: number
+    pitch?: number
+    rate?: number
+}
+
+export type PingParams = CommonParams
+
+export type QueueParams = CommonParams
+
+export type RemoveParams = CommonParams & {
+    index: number
+}
+//
+// export type PauseParams = CommonParams
+//
+// export type ResumeParams = CommonParams

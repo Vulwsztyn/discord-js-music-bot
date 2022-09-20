@@ -3,13 +3,27 @@ import {Node} from "lavaclient";
 
 import {Command} from "./command/Command";
 import {Utils} from "./Utils";
-import {Join as JoinFn, Play as PlayFn, Skip as SkipFn, Seek} from "../functions"
+import {
+    Join as JoinFn,
+    Play as PlayFn,
+    Skip as SkipFn,
+    Seek,
+    Leave,
+    Nightcore,
+    Ping,
+    Queue,
+    Remove,
+    Resume,
+    Pause
+} from "../functions"
+import {CommonParams} from "../functions/types";
 
 export class Bot extends Client {
     readonly music: Node;
     readonly commands: Collection<Snowflake, Command> = new Collection();
 
     readonly messageCommands: Record<string, any> = {}
+    readonly messageCommandsAliases: Record<string, string> = {}
     readonly prefix = process.env.PREFIX || "!"
 
     constructor() {
@@ -18,6 +32,7 @@ export class Bot extends Client {
         });
 
         this.attachMessageCommands()
+        this.attachMessageCommandsAliases()
         this.music = new Node({
             sendGatewayPayload: (id, payload) => this.guilds.cache.get(id)?.shard?.send(payload),
             connection: {
@@ -43,13 +58,14 @@ export class Bot extends Client {
     async handleMessage(data: any) {
         const channel = this.channels.cache.get(data.channel_id) as TextChannel
         const message = await channel.messages.fetch(data.id)
-        console.log(JSON.stringify({
-            ...data,
-            myType: "create",
-            prefixed: message.content.startsWith(this.prefix)
-        }, null, 2))
+        // console.log(JSON.stringify({
+        //     ...data,
+        //     myType: "create",
+        //     prefixed: message.content.startsWith(this.prefix)
+        // }, null, 2))
         if (message.content.startsWith(this.prefix)) {
-            const command = message.content.split(" ")[0].slice(this.prefix.length)
+            const commandOrAlias = message.content.split(" ")[0].slice(this.prefix.length)
+            const command = commandOrAlias in this.messageCommandsAliases ? this.messageCommandsAliases[commandOrAlias] : commandOrAlias
             if (command in this.messageCommands) {
                 await this.messageCommands[command](data, channel, message)
             }
@@ -57,57 +73,62 @@ export class Bot extends Client {
     }
 
     attachMessageCommands() {
-        this.messageCommands["join"] = async (data: any, textChannel: TextChannel, message: Message<true>) => {
-            const vc = this.guilds.cache.get(data.guild_id)?.voiceStates.cache.get(message.author.id)?.channel
+        const genericFn = (fn: (args: CommonParams) => Promise<void>) => async (data: any, textChannel: TextChannel, message: Message<true>) => {
+            const guild = this.guilds.cache.get(data.guild_id)
+            const vc = guild?.voiceStates.cache.get(message.author.id)?.channel
             const send = (t: string) => message.reply({embeds: [Utils.embed(t)]})
-            await JoinFn(
+            await fn(
                 {
                     vc,
                     client: this,
                     channel: textChannel,
                     send,
                     sendIfError: send,
-                    guildId: data.guild_id
+                    guild
                 }
             )
         }
+        this.messageCommands["join"] = genericFn(JoinFn)
 
-        const playFn = (next: boolean) => async (data: any, textChannel: TextChannel, message: Message<true>) => {
-            const vc = this.guilds.cache.get(data.guild_id)?.voiceStates.cache.get(message.author.id)?.channel
-            const send = (t: string, t2:string) => message.reply({embeds: [Utils.embed(`${t} ${t2}`)]})
-            await PlayFn(
-                {
-                    vc,
-                    client: this,
-                    channel: textChannel,
-                    send,
-                    sendIfError: send,
-                    query: message.content.split(" ").slice(1).join(" "),
-                    next,
-                    guildId: data.guild_id
-                }
-            )
+        const playFn = (next: boolean, override?: string) => async (data: any, textChannel: TextChannel, message: Message<true>) => {
+            const guild = this.guilds.cache.get(data.guild_id)
+            const vc = guild?.voiceStates.cache.get(message.author.id)?.channel
+            const send = (t: string, t2: string) => message.reply({embeds: [Utils.embed(`${t} ${t2}`)]})
+            const query = override || message.content.split(" ").slice(1).join(" ")
+            if (query === "") {
+                await Resume(
+                    {
+                        vc,
+                        client: this,
+                        channel: textChannel,
+                        send,
+                        sendIfError: send,
+                        guild
+                    }
+                )
+            } else {
+                await PlayFn(
+                    {
+                        vc,
+                        client: this,
+                        channel: textChannel,
+                        send,
+                        sendIfError: send,
+                        query,
+                        next,
+                        guild
+                    }
+                )
+            }
         }
 
         this.messageCommands["play"] = playFn(false)
         this.messageCommands["playnext"] = playFn(true)
 
-        this.messageCommands["skip"] = async (data: any, textChannel: TextChannel, message: Message<true>) => {
-            const vc = this.guilds.cache.get(data.guild_id)?.voiceStates.cache.get(message.author.id)?.channel
-            const send = (t: string) => message.reply({embeds: [Utils.embed(t)]})
-            await SkipFn(
-                {
-                    vc,
-                    client: this,
-                    channel: textChannel,
-                    send,
-                    sendIfError: send,
-                    guildId: data.guild_id
-                }
-            )
-        }
-        const seekFn = (add: boolean, prefix: string = '') =>async (data: any, textChannel: TextChannel, message: Message<true>) => {
-            const vc = this.guilds.cache.get(data.guild_id)?.voiceStates.cache.get(message.author.id)?.channel
+        this.messageCommands["skip"] = genericFn(SkipFn)
+        const seekFn = (add: boolean, prefix: string = '') => async (data: any, textChannel: TextChannel, message: Message<true>) => {
+            const guild = this.guilds.cache.get(data.guild_id)
+            const vc = guild?.voiceStates.cache.get(message.author.id)?.channel
             const send = (t: string) => message.reply({embeds: [Utils.embed(t)]})
             await Seek(
                 {
@@ -116,8 +137,8 @@ export class Bot extends Client {
                     channel: textChannel,
                     send,
                     sendIfError: send,
-                    guildId: data.guild_id,
-                    position: prefix+(message.content.split(" ").slice(1).join(" ")),
+                    guild,
+                    position: prefix + (message.content.split(" ").slice(1).join(" ")),
                     add
                 }
             )
@@ -125,7 +146,61 @@ export class Bot extends Client {
         this.messageCommands["seek"] = seekFn(false)
         this.messageCommands["forward"] = seekFn(true)
         this.messageCommands["back"] = seekFn(true, '-')
+        this.messageCommands["leave"] = genericFn(Leave)
+        this.messageCommands["nightcore"] = genericFn(Nightcore)
+        this.messageCommands["ping"] = genericFn(Ping)
+        this.messageCommands["piwo"] = async (data: any, textChannel: TextChannel, _message: Message<true>) => playFn(false, "https://www.youtube.com/watch?v=hbsT9OOqvzw")(data, textChannel, _message)
+        this.messageCommands["piwonext"] = async (data: any, textChannel: TextChannel, _message: Message<true>) => playFn(false, "https://www.youtube.com/watch?v=hbsT9OOqvzw")(data, textChannel, _message)
+        this.messageCommands["queue"] = this.messageCommands["remove"] = async (data: any, textChannel: TextChannel, message: Message<true>) => {
+            const guild = this.guilds.cache.get(data.guild_id)
+            const vc = guild?.voiceStates.cache.get(message.author.id)?.channel
+            const send = (t: string, t2: string) => message.reply({
+                embeds: [Utils.embed({
+                    description: t2,
+                    title: t
+                })]
+            })
+            await Queue(
+                {
+                    vc,
+                    client: this,
+                    channel: textChannel,
+                    send,
+                    sendIfError: send,
+                    guild
+                }
+            )
+        }
+        this.messageCommands["remove"] = async (data: any, textChannel: TextChannel, message: Message<true>) => {
+            const guild = this.guilds.cache.get(data.guild_id)
+            const vc = guild?.voiceStates.cache.get(message.author.id)?.channel
+            const send = (t: string, t2: string) => message.reply({embeds: [Utils.embed(`${t} ${t2}`)]})
+            await Remove(
+                {
+                    vc,
+                    client: this,
+                    channel: textChannel,
+                    send,
+                    sendIfError: send,
+                    index: parseInt(message.content.split(" ").slice(1).join(" ")),
+                    guild
+                }
+            )
+        }
+        this.messageCommands["pause"] = genericFn(Pause)
+        this.messageCommands["resume"] = genericFn(Resume)
     }
+
+    attachMessageCommandsAliases() {
+        this.messageCommandsAliases['q'] = "queue"
+        this.messageCommandsAliases['p'] = "play"
+        this.messageCommandsAliases['pn'] = "playnext"
+        this.messageCommandsAliases['s'] = "skip"
+        this.messageCommandsAliases['q'] = "queue"
+        this.messageCommandsAliases['r'] = "remove"
+        this.messageCommandsAliases['rm'] = "remove"
+    }
+
 }
 
 declare module "discord.js" {

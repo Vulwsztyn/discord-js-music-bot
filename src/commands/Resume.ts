@@ -4,12 +4,12 @@ import {
     CommandContext,
     Utils,
 } from "@lib";
-import {Skip as SkipFn} from "../functions"
+import {Resume as ResumeFn} from "../functions"
 
-@command({name: "skip", description: "Skips the current song."})
-export default class Skip extends Command {
+@command({name: "join", description: "Resumes the playback."})
+export default class Resume extends Command {
     async exec(ctx: CommandContext) {
-        await SkipFn({
+        await ResumeFn({
             vc: ctx.guild?.voiceStates?.cache?.get(ctx.user.id)?.channel,
             client: ctx.client,
             channel: ctx.channel,

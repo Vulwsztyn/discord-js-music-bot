@@ -1,11 +1,9 @@
-import {ApplicationCommandOptionType} from "discord.js";
 import {SkipParams} from "./types";
 
-
-export async function Skip({
+export async function Resume({
                                vc,
                                sendIfError,
-                                send,
+                               send,
                                client,
                                guild,
                            }: SkipParams) {
@@ -25,7 +23,6 @@ export async function Skip({
     if (!current) {
         return sendIfError("I'm not playing anything bozo")
     }
-    await player.queue.skip()
-    await player.queue.start()
-    await send(`Skipped ${current.title}`)
+    await player.pause(false)
+    await send(`Resumed ${current.title} at ${player.position}ms`)
 }

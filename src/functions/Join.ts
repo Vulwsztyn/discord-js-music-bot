@@ -1,5 +1,3 @@
-import {VoiceBasedChannel} from "discord.js"
-import {MessageChannel} from "@lib"
 import {JoinParams} from "./types"
 
 export async function Join({

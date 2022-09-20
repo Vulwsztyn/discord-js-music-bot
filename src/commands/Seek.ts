@@ -1,7 +1,5 @@
-import {command, Command, CommandContext, MessageChannel, Utils} from "@lib";
-import {SpotifyItemType} from "@lavaclient/spotify";
+import {command, Command, CommandContext, Utils} from "@lib";
 
-import type {Addable} from "@lavaclient/queue";
 import {ApplicationCommandOptionType} from "discord.js";
 import {Seek as SeekFn} from "../functions";
 
@@ -28,7 +26,7 @@ export default class Seek extends Command {
                     description: t,
                 }),),
             sendIfError: (t: string) => ctx.reply(Utils.embed(t), {ephemeral: true}),
-            guildId: ctx.guild!.id,
+            guild: ctx.guild,
             position,
             add: false
         })

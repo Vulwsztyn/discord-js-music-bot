@@ -2,7 +2,6 @@ import {
     command,
     Command,
     CommandContext,
-    MessageChannel,
     Utils,
 } from "@lib";
 import {Join as JoinFn} from "../functions"
@@ -16,7 +15,7 @@ export default class Join extends Command {
             channel: ctx.channel,
             send: (t: string) => ctx.reply(Utils.embed(t),),
             sendIfError: (t: string) => ctx.reply(Utils.embed(t), {ephemeral: true}),
-            guildId: ctx.guild!.id,
+            guild: ctx.guild,
         })
     }
 }

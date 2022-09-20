@@ -4,15 +4,9 @@ import {ApplicationCommandOptionType} from "discord.js";
 import {Play as PlayFn} from "../functions";
 
 @command({
-    name: "play",
-    description: "Plays a song in the current vc.",
+    name: "piwo",
+    description: "Plays the song of Jasiek Kiep",
     options: [
-        {
-            name: "query",
-            description: "The search query.",
-            type: ApplicationCommandOptionType.String,
-            required: true
-        },
         {
             name: "next",
             description: "Whether to add the results to the top of the queue.",
@@ -21,8 +15,8 @@ import {Play as PlayFn} from "../functions";
         }
     ]
 })
-export default class Play extends Command {
-    async exec(ctx: CommandContext, {query, next}: { query: string, next: boolean }) {
+export default class Piwo extends Command {
+    async exec(ctx: CommandContext, { next}: { next: boolean }) {
         await PlayFn({
             vc: ctx.guild?.voiceStates?.cache?.get(ctx.user.id)?.channel,
             client: ctx.client,
@@ -33,7 +27,7 @@ export default class Play extends Command {
                     footer: t2 ? {text: t2} : undefined
                 }), {ephemeral: !started}),
             sendIfError: (t: string) => ctx.reply(Utils.embed(t), {ephemeral: true}),
-            query,
+            query: "https://www.youtube.com/watch?v=hbsT9OOqvzw",
             next,
             requester: ctx.user.id,
             guild: ctx.guild,

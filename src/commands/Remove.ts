@@ -1,5 +1,6 @@
 import { command, Command, CommandContext, Utils } from "@lib";
 import {ApplicationCommandOptionType} from "discord.js";
+import {Remove as RemoveFn} from "../functions"
 
 @command({ 
     name: "remove", 
@@ -15,25 +16,17 @@ import {ApplicationCommandOptionType} from "discord.js";
 })
 export default class Remove extends Command {
     async exec(ctx: CommandContext, { index }: { index: number }) {
-        /* check if a player exists for this guild. */
-        const player = ctx.client.music.players.get(ctx.guild!.id);
-        if (!player?.connected) {
-            return ctx.reply(Utils.embed("I couldn't find a player for this guild."), { ephemeral: true });
-        }
-
-        /* check if the user is in the player's voice channel. */
-        const vc = ctx.guild?.voiceStates?.cache?.get(ctx.user.id)?.channel;
-        if (!vc || player.channelId !== vc.id) {
-            return ctx.reply(Utils.embed("You're not in my voice channel, bozo."), { ephemeral: true });
-        }
-
-        /* remove the track from the queue. */ 
-        const removedTrack = player.queue.remove(index - 1);
-        if (!removedTrack) {
-            /* no track was removed. */
-            return ctx.reply(Utils.embed("No tracks were removed."), { ephemeral: true });
-        }
-
-        return ctx.reply(Utils.embed(`The track [**${removedTrack.title}**](${removedTrack.uri}) was removed.`));
+        await RemoveFn({
+            vc: ctx.guild?.voiceStates?.cache?.get(ctx.user.id)?.channel,
+            client: ctx.client,
+            channel: ctx.channel,
+            send: (t: string, str: string) => ctx.reply(Utils.embed({
+                description: str,
+                title: t
+            })),
+            sendIfError: (t: string) => ctx.reply(Utils.embed(t), {ephemeral: true}),
+            guild: ctx.guild,
+            index,
+        })
     }
 }
