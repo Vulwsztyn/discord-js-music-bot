@@ -196,6 +196,7 @@ export class Bot extends Client {
         this.messageCommandsAliases['p'] = "play"
         this.messageCommandsAliases['pn'] = "playnext"
         this.messageCommandsAliases['s'] = "skip"
+        this.messageCommandsAliases['fs'] = "skip"
         this.messageCommandsAliases['q'] = "queue"
         this.messageCommandsAliases['r'] = "remove"
         this.messageCommandsAliases['rm'] = "remove"
