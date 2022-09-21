@@ -17,6 +17,8 @@ import {
     Pause
 } from "../functions"
 import {CommonParams} from "../functions/types";
+import {aliases} from "./aliases";
+import {createMessageCommands} from "./messageCommands";
 
 export class Bot extends Client {
     readonly music: Node;
@@ -73,134 +75,16 @@ export class Bot extends Client {
     }
 
     attachMessageCommands() {
-        const genericFn = (fn: (args: CommonParams) => Promise<void>) => async (data: any, textChannel: TextChannel, message: Message<true>) => {
-            const guild = this.guilds.cache.get(data.guild_id)
-            const vc = guild?.voiceStates.cache.get(message.author.id)?.channel
-            const send = (t: string) => message.reply({embeds: [Utils.embed(t)]})
-            await fn(
-                {
-                    vc,
-                    client: this,
-                    channel: textChannel,
-                    send,
-                    sendIfError: send,
-                    guild
-                }
-            )
-        }
-        this.messageCommands["join"] = genericFn(JoinFn)
-
-        const playFn = (next: boolean, override?: string) => async (data: any, textChannel: TextChannel, message: Message<true>) => {
-            const guild = this.guilds.cache.get(data.guild_id)
-            const vc = guild?.voiceStates.cache.get(message.author.id)?.channel
-            const send = (t: string, t2: string) => message.reply({embeds: [Utils.embed(`${t} ${t2}`)]})
-            const query = override || message.content.split(" ").slice(1).join(" ")
-            if (query === "") {
-                await Resume(
-                    {
-                        vc,
-                        client: this,
-                        channel: textChannel,
-                        send,
-                        sendIfError: send,
-                        guild
-                    }
-                )
-            } else {
-                await PlayFn(
-                    {
-                        vc,
-                        client: this,
-                        channel: textChannel,
-                        send,
-                        sendIfError: send,
-                        query,
-                        next,
-                        guild
-                    }
-                )
-            }
-        }
-
-        this.messageCommands["play"] = playFn(false)
-        this.messageCommands["playnext"] = playFn(true)
-
-        this.messageCommands["skip"] = genericFn(SkipFn)
-        const seekFn = (add: boolean, prefix: string = '') => async (data: any, textChannel: TextChannel, message: Message<true>) => {
-            const guild = this.guilds.cache.get(data.guild_id)
-            const vc = guild?.voiceStates.cache.get(message.author.id)?.channel
-            const send = (t: string) => message.reply({embeds: [Utils.embed(t)]})
-            await Seek(
-                {
-                    vc,
-                    client: this,
-                    channel: textChannel,
-                    send,
-                    sendIfError: send,
-                    guild,
-                    position: prefix + (message.content.split(" ").slice(1).join(" ")),
-                    add
-                }
-            )
-        }
-        this.messageCommands["seek"] = seekFn(false)
-        this.messageCommands["forward"] = seekFn(true)
-        this.messageCommands["back"] = seekFn(true, '-')
-        this.messageCommands["leave"] = genericFn(Leave)
-        this.messageCommands["nightcore"] = genericFn(Nightcore)
-        this.messageCommands["ping"] = genericFn(Ping)
-        this.messageCommands["piwo"] = async (data: any, textChannel: TextChannel, message: Message<true>) => playFn(false, "https://www.youtube.com/watch?v=hbsT9OOqvzw")(data, textChannel, message)
-        this.messageCommands["piwonext"] = async (data: any, textChannel: TextChannel, message: Message<true>) => playFn(true, "https://www.youtube.com/watch?v=hbsT9OOqvzw")(data, textChannel, message)
-        this.messageCommands["queue"] = this.messageCommands["remove"] = async (data: any, textChannel: TextChannel, message: Message<true>) => {
-            const guild = this.guilds.cache.get(data.guild_id)
-            const vc = guild?.voiceStates.cache.get(message.author.id)?.channel
-            const send = (t: string, t2: string) => message.reply({
-                embeds: [Utils.embed({
-                    description: t2,
-                    title: t
-                })]
-            })
-            await Queue(
-                {
-                    vc,
-                    client: this,
-                    channel: textChannel,
-                    send,
-                    sendIfError: send,
-                    guild
-                }
-            )
-        }
-        this.messageCommands["remove"] = async (data: any, textChannel: TextChannel, message: Message<true>) => {
-            const guild = this.guilds.cache.get(data.guild_id)
-            const vc = guild?.voiceStates.cache.get(message.author.id)?.channel
-            const send = (t: string, t2: string) => message.reply({embeds: [Utils.embed(`${t} ${t2}`)]})
-            await Remove(
-                {
-                    vc,
-                    client: this,
-                    channel: textChannel,
-                    send,
-                    sendIfError: send,
-                    index: parseInt(message.content.split(" ").slice(1).join(" ")),
-                    guild
-                }
-            )
-        }
-        this.messageCommands["pause"] = genericFn(Pause)
-        this.messageCommands["resume"] = genericFn(Resume)
+        const messageCommands = createMessageCommands(this)
+        Object.keys(messageCommands).forEach(command => {
+            this.messageCommands[command] = messageCommands[command]
+        })
     }
 
     attachMessageCommandsAliases() {
-        this.messageCommandsAliases['q'] = "queue"
-        this.messageCommandsAliases['p'] = "play"
-        this.messageCommandsAliases['pn'] = "playnext"
-        this.messageCommandsAliases['s'] = "skip"
-        this.messageCommandsAliases['fs'] = "skip"
-        this.messageCommandsAliases['forceskip'] = "skip"
-        this.messageCommandsAliases['q'] = "queue"
-        this.messageCommandsAliases['r'] = "remove"
-        this.messageCommandsAliases['rm'] = "remove"
+        Object.keys(aliases).forEach(alias => {
+            this.messageCommandsAliases[alias] = aliases[alias]
+        })
     }
 
 }
