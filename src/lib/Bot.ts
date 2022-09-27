@@ -32,14 +32,8 @@ export class Bot extends Client {
 
         this.ws.on(GatewayDispatchEvents.VoiceServerUpdate, data => this.music.handleVoiceUpdate(data));
         this.ws.on(GatewayDispatchEvents.VoiceStateUpdate, data => this.music.handleVoiceUpdate(data));
-        this.ws.on(GatewayDispatchEvents.MessageCreate, async (data) => {
-            if (data.author.id === this.user?.id) return;
-            await this.handleMessage(data)
-        })
-        this.ws.on(GatewayDispatchEvents.MessageUpdate, async (data) => {
-            if (data.author.id === this.user?.id) return;
-            await this.handleMessage(data)
-        })
+        this.ws.on(GatewayDispatchEvents.MessageCreate, this.handleMessage)
+        this.ws.on(GatewayDispatchEvents.MessageUpdate, this.handleMessage)
     }
 
     async getMessage(channel: TextChannel, id: string): Promise<Message<true> | null> {
@@ -51,6 +45,7 @@ export class Bot extends Client {
     }
 
     async handleMessage(data: any) {
+        if (!data.author || data.author.id === this.user?.id) return;
         const textChannel = this.channels.cache.get(data.channel_id) as TextChannel
         const message = await this.getMessage(textChannel, data.id)
         if (data.content.startsWith(this.prefix)) {
