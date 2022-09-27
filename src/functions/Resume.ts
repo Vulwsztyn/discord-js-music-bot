@@ -1,4 +1,4 @@
-import {SkipParams} from "./types";
+import {ResumeParams} from "./types";
 
 export async function Resume({
                                vc,
@@ -6,7 +6,7 @@ export async function Resume({
                                send,
                                client,
                                guild,
-                           }: SkipParams) {
+                           }: ResumeParams) {
     if (!vc) {
         return sendIfError("Join a voice channel bozo")
     }

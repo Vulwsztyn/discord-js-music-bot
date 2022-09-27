@@ -2,29 +2,15 @@ import {Channel, Client, Collection, GatewayDispatchEvents, Message, Snowflake, 
 import {Node} from "lavaclient";
 
 import {Command} from "./command/Command";
-import {Utils} from "./Utils";
-import {
-    Join as JoinFn,
-    Play as PlayFn,
-    Skip as SkipFn,
-    Seek,
-    Leave,
-    Nightcore,
-    Ping,
-    Queue,
-    Remove,
-    Resume,
-    Pause
-} from "../functions"
-import {CommonParams} from "../functions/types";
 import {aliases} from "./aliases";
 import {createMessageCommands} from "./messageCommands";
+import {MessageCommandParams} from "../functions/types";
 
 export class Bot extends Client {
     readonly music: Node;
     readonly commands: Collection<Snowflake, Command> = new Collection();
 
-    readonly messageCommands: Record<string, any> = {}
+    readonly messageCommands: Record<string, (params: MessageCommandParams) => Promise<null>> = {}
     readonly messageCommandsAliases: Record<string, string> = {}
     readonly prefix = process.env.PREFIX || "!"
 
@@ -49,27 +35,29 @@ export class Bot extends Client {
         this.ws.on(GatewayDispatchEvents.MessageCreate, async (data) => {
             if (data.author.id === this.user?.id) return;
             await this.handleMessage(data)
+        })
+        this.ws.on(GatewayDispatchEvents.MessageUpdate, async (data) => {
+            if (data.author.id === this.user?.id) return;
+            await this.handleMessage(data)
+        })
+    }
 
-        });
-        this.ws.on(GatewayDispatchEvents.MessageUpdate, data => console.log(JSON.stringify({
-            ...data,
-            myType: "update"
-        }, null, 2)));
+    async getMessage(channel: TextChannel, id: string): Promise<Message<true> | null> {
+        try {
+            return await channel.messages.fetch(id)
+        } catch (e) {
+            return null
+        }
     }
 
     async handleMessage(data: any) {
-        const channel = this.channels.cache.get(data.channel_id) as TextChannel
-        const message = await channel.messages.fetch(data.id)
-        // console.log(JSON.stringify({
-        //     ...data,
-        //     myType: "create",
-        //     prefixed: message.content.startsWith(this.prefix)
-        // }, null, 2))
-        if (message.content.startsWith(this.prefix)) {
-            const commandOrAlias = message.content.split(" ")[0].slice(this.prefix.length)
+        const textChannel = this.channels.cache.get(data.channel_id) as TextChannel
+        const message = await this.getMessage(textChannel, data.id)
+        if (data.content.startsWith(this.prefix)) {
+            const commandOrAlias = data.content.split(" ")[0].slice(this.prefix.length)
             const command = commandOrAlias in this.messageCommandsAliases ? this.messageCommandsAliases[commandOrAlias] : commandOrAlias
             if (command in this.messageCommands) {
-                await this.messageCommands[command](data, channel, message)
+                await this.messageCommands[command]({data, textChannel, message})
             }
         }
     }

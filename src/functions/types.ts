@@ -1,4 +1,4 @@
-import {Client, Guild, VoiceBasedChannel} from "discord.js";
+import {Client, Guild, Message, TextChannel, VoiceBasedChannel} from "discord.js";
 import {MessageChannel} from "@lib";
 import {SpotifyManager} from "@lavaclient/spotify";
 
@@ -41,7 +41,13 @@ export type QueueParams = CommonParams
 export type RemoveParams = CommonParams & {
     index: number
 }
-//
-// export type PauseParams = CommonParams
-//
-// export type ResumeParams = CommonParams
+
+export type PauseParams = CommonParams
+
+export type ResumeParams = CommonParams
+
+export type MessageCommandParams = {
+    data: any,
+    textChannel: TextChannel,
+    message: Message<true> | null,
+}

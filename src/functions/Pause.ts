@@ -1,4 +1,4 @@
-import {SkipParams} from "./types";
+import {PauseParams} from "./types";
 
 export async function Pause({
                                vc,
@@ -6,7 +6,7 @@ export async function Pause({
                                send,
                                client,
                                guild,
-                           }: SkipParams) {
+                           }: PauseParams) {
     if (!vc) {
         return sendIfError("Join a voice channel bozo")
     }
