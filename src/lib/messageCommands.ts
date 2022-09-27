@@ -48,13 +48,6 @@ export const createMessageCommands: (client: Client) => Record<string, any> = (c
                                                                 }: MessageCommandParams) => {
         const guild = client.guilds.cache.get(data.guild_id)
         const vc = guild?.voiceStates.cache.get(data.author.id)?.channel
-        console.log({
-                channel_id: data.channel_id,
-                type: typeof (client.channels.cache.get(data.channel_id)),
-                message,
-            test: message ? 1 : 0,
-            }
-        )
         const sendFn = async (a: any) => {
             try {
                 await message?.reply(a)
