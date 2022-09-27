@@ -32,8 +32,8 @@ export class Bot extends Client {
 
         this.ws.on(GatewayDispatchEvents.VoiceServerUpdate, data => this.music.handleVoiceUpdate(data));
         this.ws.on(GatewayDispatchEvents.VoiceStateUpdate, data => this.music.handleVoiceUpdate(data));
-        this.ws.on(GatewayDispatchEvents.MessageCreate, this.handleMessage)
-        this.ws.on(GatewayDispatchEvents.MessageUpdate, this.handleMessage)
+        this.ws.on(GatewayDispatchEvents.MessageCreate, this.handleMessage.bind(this))
+        this.ws.on(GatewayDispatchEvents.MessageUpdate, this.handleMessage.bind(this))
     }
 
     async getMessage(channel: TextChannel, id: string): Promise<Message<true> | null> {
