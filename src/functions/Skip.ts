@@ -15,7 +15,7 @@ export async function Skip({
 
     /* check if a player already exists, if so check if the invoker is in our vc. */
     let player = client.music.players.get(guild!.id)
-    if (player && player.channelId !== vc.id) {
+    if (player && player.channelId && player.channelId !== vc.id) {
         return sendIfError(`Join <#${player.channelId}> bozo`)
     }
     if (!player) {
