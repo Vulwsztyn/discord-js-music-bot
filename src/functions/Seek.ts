@@ -1,9 +1,9 @@
-import {command, Command, CommandContext, MessageChannel, Utils} from "@lib";
-import {SpotifyItemType} from "@lavaclient/spotify";
+import {command, Command, CommandContext, MessageChannel, Utils} from "@lib"
+import {SpotifyItemType} from "@lavaclient/spotify"
 
-import type {Addable} from "@lavaclient/queue";
-import {ApplicationCommandOptionType, VoiceBasedChannel} from "discord.js";
-import {SeekParams} from "./types";
+import type {Addable} from "@lavaclient/queue"
+import {ApplicationCommandOptionType, VoiceBasedChannel} from "discord.js"
+import {SeekParams} from "./types"
 
 
 export async function Seek({
@@ -20,14 +20,14 @@ export async function Seek({
     }
 
     /* check if a player already exists, if so check if the invoker is in our vc. */
-    let player = client.music.players.get(guild!.id)
+    const player = client.music.players.get(guild!.id)
     if (player && player.channelId && player.channelId !== vc.id) {
         return sendIfError(`Join <#${player.channelId}> bozo`)
     }
     if (!player) {
         return sendIfError("I'm not playing anything bozo (no player)")
     }
-    const current = player.queue.current;
+    const current = player.queue.current
     if (!current) {
         return sendIfError("I'm not playing anything bozo (no current song)")
     }
