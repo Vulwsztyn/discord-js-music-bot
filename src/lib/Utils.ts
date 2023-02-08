@@ -96,4 +96,12 @@ export abstract class Utils {
         return (hours * 60 * 60 * 1000) + (minutes * 60 * 1000) + (seconds * 1000) + milliseconds
     }
 
+    static millisecondsToString(milliseconds: number) {
+        const seconds = milliseconds / 1000
+        const minutes = seconds / 60
+        const hours = minutes / 60
+        const format = (num: number): string => Math.floor(num).toString().padStart(2, '0')
+        return `${format(hours)}:${format(minutes % 60)}:${format(seconds % 60)}.${milliseconds % 1000}`
+    }
+
 }

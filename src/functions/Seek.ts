@@ -31,10 +31,13 @@ export async function Seek({
     if (!current) {
         return sendIfError("I'm not playing anything bozo (no current song)")
     }
-    const positionNumerised = (add ? player.position || 0 : 0)  + Utils.stringToMilliseconds(position);
+    const positionNumerised = (add ? player.position || 0 : 0)  + Utils.stringToMilliseconds(position)
     if (isNaN(positionNumerised)) {
         return sendIfError("Position must be a number")
     }
     await player.seek(positionNumerised)
-    await send(`Sought ${current.title} to ${positionNumerised}`)
+
+    const positionHumanReadable = Utils.millisecondsToString(positionNumerised)
+
+    await send(`Sought ${current.title} to ${positionHumanReadable}`)
 }
