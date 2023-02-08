@@ -1,25 +1,25 @@
-import { EmbedBuilder, EmbedData } from "discord.js";
-import { lstatSync, readdirSync } from "fs";
-import { join } from "path";
+import { EmbedBuilder, EmbedData } from "discord.js"
+import { lstatSync, readdirSync } from "fs"
+import { join } from "path"
 
-import type { Command } from "@lib";
-import type { Bot } from "./Bot";
-import type { NewsChannel, TextChannel, ThreadChannel } from "discord.js";
+import type { Command } from "@lib"
+import type { Bot } from "./Bot"
+import type { NewsChannel, TextChannel, ThreadChannel } from "discord.js"
 
-export type MessageChannel = TextChannel | ThreadChannel | NewsChannel;
+export type MessageChannel = TextChannel | ThreadChannel | NewsChannel
 
 export abstract class Utils {
-    static PRIMARY_COLOR = 0xfff269;
+    static PRIMARY_COLOR = 0xfff269
 
     static embedded(embed: EmbedData | string) {
-        return {embeds:[Utils.embed(embed)]};
+        return {embeds:[Utils.embed(embed)]}
     }
 
     static embed(embed: EmbedData | string) {
-        const options: EmbedData = typeof embed === "string" ? { description: embed } : embed;
-        options.color ??= Utils.PRIMARY_COLOR;
+        const options: EmbedData = typeof embed === "string" ? { description: embed } : embed
+        options.color ??= Utils.PRIMARY_COLOR
 
-        return new EmbedBuilder(options);
+        return new EmbedBuilder(options)
     }
 
     static walk(directory: string): string[] {
@@ -29,29 +29,29 @@ export abstract class Utils {
                 if (stat.isDirectory()) {
                     files.concat(read(path, files))
                 } else if (stat.isFile()) {
-                    files.push(path);
+                    files.push(path)
                 }
             }
 
-            return files;
+            return files
         }
 
-        return read(directory);
+        return read(directory)
     }
 
     static async syncCommands(client: Bot, dir: string, soft: boolean = false) {
-        const commands: Command[] = [];
+        const commands: Command[] = []
         for (const path of Utils.walk(dir)) {
-            const { default: Command } = await import(path);
+            const { default: Command } = await import(path)
             if (!Command) {
-                continue;
+                continue
             }
 
-            commands.push(new Command());
+            commands.push(new Command())
         }
 
         const commandManager = client.application!.commands,
-            existing = await commandManager.fetch();
+            existing = await commandManager.fetch()
 
         /* do soft sync */
         if (soft) {
@@ -61,28 +61,28 @@ export abstract class Utils {
                     continue
                 }
 
-                command.ref = ref;
-                client.commands.set(ref.id, command);
+                command.ref = ref
+                client.commands.set(ref.id, command)
             }
 
-            console.log(`[discord] slash commands: registered ${client.commands.size}/${commands.length} commands.`);
-            return;
+            console.log(`[discord] slash commands: registered ${client.commands.size}/${commands.length} commands.`)
+            return
         }
 
         /* get the slash commands to add, update, or remove. */
         const adding = commands.filter(c => existing.every(e => e.name !== c.data.name))
             , updating = commands.filter(c => existing.some(e => e.name === c.data.name))
-            , removing = [ ...existing.filter(e => commands.every(c => c.data.name !== e.name)).values() ];
+            , removing = [ ...existing.filter(e => commands.every(c => c.data.name !== e.name)).values() ]
 
         console.log(`[discord] slash commands: removing ${removing.length}, adding ${adding.length}, updating ${updating.length}`)
 
         /* update/create slash commands. */
         const creating = [...adding, ...updating],
-            created = await commandManager.set(creating.map(c => c.data));
+            created = await commandManager.set(creating.map(c => c.data))
 
         for (const command of creating) {
-            command.ref = created.find(c => c.name === command.data.name)!;
-            client.commands.set(command.ref.id, command);
+            command.ref = created.find(c => c.name === command.data.name)!
+            client.commands.set(command.ref.id, command)
         }
     }
 
@@ -94,6 +94,14 @@ export abstract class Utils {
         const seconds = secondsStr ? parseInt(secondsStr) : 0
         const milliseconds = microsecondsStr ? parseInt(microsecondsStr.padEnd(4, '0')) : 0
         return (hours * 60 * 60 * 1000) + (minutes * 60 * 1000) + (seconds * 1000) + milliseconds
+    }
+
+    static millisecondsToString(milliseconds: number) {
+        const seconds = milliseconds / 1000
+        const minutes = seconds / 60
+        const hours = minutes / 60
+        const format = (num: number): string => Math.floor(num).toString().padStart(2, '0')
+        return `${format(hours)}:${format(minutes % 60)}:${format(seconds % 60)}.${milliseconds % 1000}`
     }
 
 }
