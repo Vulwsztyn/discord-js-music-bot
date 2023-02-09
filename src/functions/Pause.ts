@@ -1,27 +1,32 @@
-import { PauseParams } from './types'
+import { Utils } from '@lib'
+import { type PauseParams } from './types'
 
-export async function Pause({
-  vc,
-  sendIfError,
-  send,
-  client,
-  guild,
-}: PauseParams) {
-  if (!vc) return sendIfError('Join a voice channel bozo')
+export async function Pause({ vc, sendIfError, send, client, guild }: PauseParams): Promise<void> {
+  if (vc == null) {
+    await sendIfError('Join a voice channel bozo')
+    return
+  }
 
   /* check if a player already exists, if so check if the invoker is in our vc. */
-  if (!guild) return sendIfError('Guild not found')
-  const player = client.music.players.get(guild.id)
-  if (player && player.channelId && player.channelId !== vc.id) {
-    return sendIfError(`Join <#${player.channelId}> bozo`)
+  if (guild == null) {
+    await sendIfError('Guild not found')
+    return
   }
-  if (!player) {
-    return sendIfError("I'm not playing anything bozo")
+  const player = client.music.players.get(guild.id)
+  if (player?.channelId != null && player.channelId !== vc.id) {
+    await sendIfError(`Join <#${player?.channelId ?? 'no channel found'}> bozo`)
+    return
+  }
+  if (player == null) {
+    await sendIfError("I'm not playing anything bozo")
+    return
   }
   const current = player.queue.current
-  if (!current) {
-    return sendIfError("I'm not playing anything bozo")
+  if (current == null) {
+    await sendIfError("I'm not playing anything bozo")
+    return
   }
   await player.pause(true)
-  await send(`Paused ${current.title} at ${player.position}ms`)
+  const positionHumanReadable = Utils.millisecondsToString(player.position ?? 0)
+  await send(`Paused ${current.title} at ${positionHumanReadable}`)
 }

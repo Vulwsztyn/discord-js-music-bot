@@ -1,7 +1,7 @@
 import { SpotifyItemType } from '@lavaclient/spotify'
 
 import type { Addable } from '@lavaclient/queue'
-import { PlayParams } from './types'
+import { type PlayParams } from './types'
 
 export async function Play({
   vc,
@@ -12,20 +12,27 @@ export async function Play({
   query,
   next,
   requester,
-  guild,
-}: PlayParams) {
-  if (!vc) return sendIfError('Join a voice channel bozo')
-
-  /* check if a player already exists, if so check if the invoker is in our vc. */
-  if (!guild) return sendIfError('Guild not found')
-  let player = client.music.players.get(guild.id)
-  if (player && player.channelId && player.channelId !== vc.id) {
-    return sendIfError(`Join <#${player.channelId}> bozo`)
+  guild
+}: PlayParams): Promise<void> {
+  if (vc == null) {
+    await sendIfError('Join a voice channel bozo')
+    return
   }
 
-  let tracks: Addable[] = [],
-    msg = ''
-  if (query != '') {
+  /* check if a player already exists, if so check if the invoker is in our vc. */
+  if (guild == null) {
+    await sendIfError('Guild not found')
+    return
+  }
+  let player = client.music.players.get(guild.id)
+  if (player?.channelId != null && player.channelId !== vc.id) {
+    await sendIfError(`Join <#${player?.channelId ?? 'no channel found'}> bozo`)
+    return
+  }
+
+  let tracks: Addable[] = []
+  let msg = ''
+  if (query !== '') {
     if (client.music.spotify.isSpotifyUrl(query)) {
       const item = await client.music.spotify.load(query)
       switch (item?.type) {
@@ -43,24 +50,24 @@ export async function Play({
         case SpotifyItemType.Album:
         case SpotifyItemType.Playlist: {
           tracks = await item.resolveYoutubeTracks()
-          msg = `Queued **${tracks.length} tracks** from ${SpotifyItemType[
-            item.type
-          ].toLowerCase()} [**${item.name}**](${query}).`
+          msg = `Queued **${tracks.length} tracks** from ${SpotifyItemType[item.type].toLowerCase()} [**${
+            item.name
+          }**](${query}).`
           break
         }
         default: {
-          return sendIfError("Sorry, couldn't find anything :/")
+          await sendIfError("Sorry, couldn't find anything :/")
+          return
         }
       }
     } else {
-      const results = await client.music.rest.loadTracks(
-        /^https?:\/\//.test(query) ? query : `ytsearch:${query}`
-      )
+      const results = await client.music.rest.loadTracks(/^https?:\/\//.test(query) ? query : `ytsearch:${query}`)
 
       switch (results.loadType) {
         case 'LOAD_FAILED':
         case 'NO_MATCHES': {
-          return sendIfError('uh oh something went wrong')
+          await sendIfError('uh oh something went wrong')
+          return
         }
         case 'PLAYLIST_LOADED': {
           tracks = results.tracks
@@ -81,14 +88,14 @@ export async function Play({
   if (!player?.connected) {
     player ??= client.music.createPlayer(guild.id)
     player.queue.channel = channel
-    await player.connect(vc.id, { deafened: true })
+    player.connect(vc.id, { deafened: true })
   }
 
   /* reply with the queued message. */
   const started = player.playing || player.paused
   if (msg !== '') {
-    //TODO: make it better (this checks if play was used to unpause)
-    await send(msg, next ? 'At the top of the queue.' : '', started.toString())
+    // TODO: make it better (this checks if play was used to unpause)
+    await send(msg, next != null ? 'At the top of the queue.' : '', started)
     player.queue.add(tracks, { requester, next })
   } else {
     await send('Resumed playback')

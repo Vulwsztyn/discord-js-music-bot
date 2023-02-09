@@ -1,35 +1,37 @@
 import { Utils } from '@lib'
 
-import { SeekParams } from './types'
+import { type SeekParams } from './types'
 
-export async function Seek({
-  vc,
-  sendIfError,
-  send,
-  client,
-  guild,
-  position,
-  add,
-}: SeekParams) {
-  if (!vc) {
-    return sendIfError('Join a voice channel bozo')
+export async function Seek({ vc, sendIfError, send, client, guild, position, add }: SeekParams): Promise<void> {
+  if (vc == null) {
+    await sendIfError('Join a voice channel bozo')
+    return
   }
 
-  if (!guild) return sendIfError('Guild not found')
+  if (guild == null) {
+    await sendIfError('Guild not found')
+    return
+  }
   const player = client.music.players.get(guild.id)
-  if (player && player.channelId && player.channelId !== vc.id) {
-    return sendIfError(`Join <#${player.channelId}> bozo`)
+  if (player?.channelId != null && player.channelId !== vc.id) {
+    await sendIfError(`Join <#${player?.channelId ?? 'no channel found'}> bozo`)
+    return
   }
-  if (!player) return sendIfError("I'm not playing anything bozo (no player)")
+  if (player == null) {
+    await sendIfError("I'm not playing anything bozo (no player)")
+    return
+  }
 
   const current = player.queue.current
-  if (!current)
-    return sendIfError("I'm not playing anything bozo (no current song)")
+  if (current == null) {
+    await sendIfError("I'm not playing anything bozo (no current song)")
+    return
+  }
 
-  const positionNumerised =
-    (add ? player.position || 0 : 0) + Utils.stringToMilliseconds(position)
+  const positionNumerised = (add ? player.position ?? 0 : 0) + Utils.stringToMilliseconds(position)
   if (isNaN(positionNumerised)) {
-    return sendIfError('Position must be a number')
+    await sendIfError('Position must be a number')
+    return
   }
   await player.seek(positionNumerised)
 

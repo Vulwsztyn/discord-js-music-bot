@@ -1,4 +1,4 @@
-import { command, Command, CommandContext, Utils } from '@lib'
+import { command, Command, type CommandContext, Utils } from '@lib'
 
 import { ApplicationCommandOptionType } from 'discord.js'
 import { Seek as SeekFn } from '../functions'
@@ -11,29 +11,21 @@ import { Seek as SeekFn } from '../functions'
       name: 'position',
       description: 'How much to forward (in seconds)',
       type: ApplicationCommandOptionType.String,
-      required: true,
-    },
-  ],
+      required: true
+    }
+  ]
 })
 export default class Forward extends Command {
-  async exec(ctx: CommandContext, { position }: { position: string }) {
+  async exec(ctx: CommandContext, { position }: { position: string }): Promise<void> {
     await SeekFn({
       vc: ctx.guild?.voiceStates?.cache?.get(ctx.user.id)?.channel,
       client: ctx.client,
       channel: ctx.channel,
-      send: async (t: string) => {
-        ctx.reply(
-          Utils.embed({
-            description: t,
-          })
-        )
-      },
-      sendIfError: async (t: string) => {
-        ctx.reply(Utils.embed(t), { ephemeral: true })
-      },
+      send: Utils.genericSend(ctx),
+      sendIfError: Utils.genericSendIfError(ctx),
       guild: ctx.guild,
       position,
-      add: true,
+      add: true
     })
   }
 }

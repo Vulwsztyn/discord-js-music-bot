@@ -1,23 +1,30 @@
-import { SkipParams } from './types'
+import { type SkipParams } from './types'
 
-export async function Skip({
-  vc,
-  sendIfError,
-  send,
-  client,
-  guild,
-}: SkipParams) {
-  if (!vc) return sendIfError('Join a voice channel bozo')
-
-  if (!guild) return sendIfError('Guild not found')
-  const player = client.music.players.get(guild.id)
-  if (player && player.channelId && player.channelId !== vc.id) {
-    return sendIfError(`Join <#${player.channelId}> bozo`)
+export async function Skip({ vc, sendIfError, send, client, guild }: SkipParams): Promise<void> {
+  if (vc == null) {
+    await sendIfError('Join a voice channel bozo')
+    return
   }
-  if (!player) return sendIfError("I'm not playing anything bozo")
+
+  if (guild == null) {
+    await sendIfError('Guild not found')
+    return
+  }
+  const player = client.music.players.get(guild.id)
+  if (player?.channelId != null && player.channelId !== vc.id) {
+    await sendIfError(`Join <#${player?.channelId ?? 'no channel found'}> bozo`)
+    return
+  }
+  if (player == null) {
+    await sendIfError("I'm not playing anything bozo")
+    return
+  }
 
   const current = player.queue.current
-  if (!current) return sendIfError("I'm not playing anything bozo")
+  if (current == null) {
+    await sendIfError("I'm not playing anything bozo")
+    return
+  }
 
   await player.queue.skip()
   await player.queue.start()

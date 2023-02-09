@@ -1,15 +1,9 @@
-import {
-  Client,
-  Guild,
-  Message,
-  TextChannel,
-  VoiceBasedChannel,
-} from 'discord.js'
-import { MessageChannel } from '@lib'
+import { type Client, type Guild, type Message, type TextChannel, type VoiceBasedChannel } from 'discord.js'
+import { type MessageChannel } from '@lib'
 
-export type CommonParams = {
+export interface CommonParams {
   vc: VoiceBasedChannel | null | undefined
-  send: (text: string, ...rest: string[]) => Promise<void>
+  send: (text: string, ...rest: any[]) => Promise<void>
   sendIfError: (text: string, ...rest: string[]) => Promise<void>
   channel: MessageChannel
   client: Client
@@ -51,7 +45,7 @@ export type PauseParams = CommonParams
 
 export type ResumeParams = CommonParams
 
-export type MessageCommandParams = {
+export interface MessageCommandParams {
   data: any
   textChannel: TextChannel
   message: Message<true> | null
