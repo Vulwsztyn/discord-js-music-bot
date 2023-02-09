@@ -12,7 +12,7 @@ export async function Play({
   query,
   next,
   requester,
-  guild
+  guild,
 }: PlayParams): Promise<void> {
   if (vc == null) {
     await sendIfError('Join a voice channel bozo')

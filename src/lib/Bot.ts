@@ -1,4 +1,4 @@
-import { Client, Collection, GatewayDispatchEvents, type Message, type Snowflake, type TextChannel } from 'discord.js'
+import { APIMessage, Client, Collection, GatewayDispatchEvents, type Message, type Snowflake, type TextChannel } from 'discord.js'
 import { Node } from 'lavaclient'
 
 import { type Command } from './command/Command'
@@ -16,7 +16,7 @@ export class Bot extends Client {
 
   constructor() {
     super({
-      intents: ['Guilds', 'GuildMessages', 'GuildVoiceStates', 'MessageContent']
+      intents: ['Guilds', 'GuildMessages', 'GuildVoiceStates', 'MessageContent'],
     })
 
     this.attachMessageCommands()
@@ -26,8 +26,8 @@ export class Bot extends Client {
       connection: {
         host: process.env.LAVA_HOST ?? '',
         password: process.env.LAVA_PASS ?? '',
-        port: 2333
-      }
+        port: 2333,
+      },
     })
 
     this.ws.on(GatewayDispatchEvents.VoiceServerUpdate, async (data) => {
@@ -48,10 +48,11 @@ export class Bot extends Client {
     }
   }
 
-  async handleMessage(data: Message<true>): Promise<void> {
-    console.log(JSON.stringify(data, null, 2))
+  async handleMessage(data: APIMessage): Promise<void> {
     if (!data.author || data.author.id === this.user?.id) return
-    const textChannel = this.channels.cache.get(data.channelId) as TextChannel
+    const maybeChannel = this.channels.cache.get(data.channel_id)
+    if (!maybeChannel) return
+    const textChannel: TextChannel = maybeChannel as TextChannel
     const message = await this.getMessage(textChannel, data.id)
     if (data.content.startsWith(this.prefix)) {
       const commandOrAlias = data.content.split(' ')[0].slice(this.prefix.length)
@@ -61,7 +62,7 @@ export class Bot extends Client {
         await this.messageCommands[command]({
           data,
           textChannel,
-          message
+          message,
         })
       }
     }
