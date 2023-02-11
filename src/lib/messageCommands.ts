@@ -1,6 +1,6 @@
-import { type CommonParams, type MessageCommandParams } from '../functions/types'
-import { type Client } from 'discord.js'
-import { Utils } from './Utils'
+import { type CommandParamsAll, type CommonParams, type MessageCommandParams } from '../functions/types'
+import { type MessagePayload, type MessageReplyOptions, type Client } from 'discord.js'
+import { embedFn } from './Utils'
 import {
   Join as JoinFn,
   Leave,
@@ -15,14 +15,21 @@ import {
   Skip as SkipFn
 } from '../functions'
 
-export const createMessageCommands: (client: Client) => Record<string, (args: any) => Promise<void>> = (client) => {
+interface MultivariantFn {
+  Fn(args: CommandParamsAll): Promise<void>
+  // TODO: remove this and @typescript-eslint/method-signature-style
+}
+
+type sendFnParam = string | MessagePayload | MessageReplyOptions
+
+export const createMessageCommands = (client: Client): Record<string, MultivariantFn['Fn']> => {
   const genericFn =
     (fn: (args: CommonParams) => Promise<void>) =>
       async ({ data, textChannel, message }: MessageCommandParams) => {
-        const guild = client.guilds.cache.get(data.guild_id)
-        const vc = guild?.voiceStates.cache.get(data.author.id)?.channel
+        const guild = client.guilds.cache.get(data.guild_id ?? '')
+        const vc = guild?.voiceStates.cache.get(data.author?.id ?? '')?.channel
 
-        const sendFn = async (a: any): Promise<void> => {
+        const sendFn = async (a: sendFnParam): Promise<void> => {
           try {
             await message?.reply(a)
           } catch (e) {
@@ -30,7 +37,7 @@ export const createMessageCommands: (client: Client) => Record<string, (args: an
           }
         }
         const send = async (t: string): Promise<void> => {
-          await sendFn({ embeds: [Utils.embed(t)] })
+          await sendFn({ embeds: [embedFn(t)] })
         }
         await fn({
           vc,
@@ -44,9 +51,9 @@ export const createMessageCommands: (client: Client) => Record<string, (args: an
   const playFn =
     (next: boolean, override?: string) =>
       async ({ data, textChannel, message }: MessageCommandParams) => {
-        const guild = client.guilds.cache.get(data.guild_id)
-        const vc = guild?.voiceStates.cache.get(data.author.id)?.channel
-        const sendFn = async (a: any): Promise<void> => {
+        const guild = client.guilds.cache.get(data.guild_id ?? '')
+        const vc = guild?.voiceStates.cache.get(data.author?.id ?? '')?.channel
+        const sendFn = async (a: sendFnParam): Promise<void> => {
           try {
             await message?.reply(a)
           } catch (e) {
@@ -54,9 +61,9 @@ export const createMessageCommands: (client: Client) => Record<string, (args: an
           }
         }
         const send = async (t: string, t2: string): Promise<void> => {
-          await sendFn({ embeds: [Utils.embed(`${t} ${t2}`)] })
+          await sendFn({ embeds: [embedFn(`${t} ${t2}`)] })
         }
-        const query = override ?? data.content.split(' ').slice(1).join(' ')
+        const query = override ?? data.content?.split(' ').slice(1).join(' ') ?? ''
         if (query === '') {
           await Resume({
             vc,
@@ -83,9 +90,9 @@ export const createMessageCommands: (client: Client) => Record<string, (args: an
   const seekFn =
     (add: boolean, prefix = '') =>
       async ({ data, textChannel, message }: MessageCommandParams) => {
-        const guild = client.guilds.cache.get(data.guild_id)
-        const vc = guild?.voiceStates.cache.get(data.author.id)?.channel
-        const sendFn = async (a: any): Promise<void> => {
+        const guild = client.guilds.cache.get(data.guild_id ?? '')
+        const vc = guild?.voiceStates.cache.get(data.author?.id ?? '')?.channel
+        const sendFn = async (a: sendFnParam): Promise<void> => {
           try {
             await message?.reply(a)
           } catch (e) {
@@ -93,7 +100,7 @@ export const createMessageCommands: (client: Client) => Record<string, (args: an
           }
         }
         const send = async (t: string): Promise<void> => {
-          await sendFn({ embeds: [Utils.embed(t)] })
+          await sendFn({ embeds: [embedFn(t)] })
         }
         await Seek({
           vc,
@@ -102,7 +109,7 @@ export const createMessageCommands: (client: Client) => Record<string, (args: an
           send,
           sendIfError: send,
           guild,
-          position: prefix + data.content.split(' ').slice(1).join(' '),
+          position: prefix + (data.content?.split(' ').slice(1).join(' ') ?? ''),
           add
         })
       }
@@ -125,9 +132,9 @@ export const createMessageCommands: (client: Client) => Record<string, (args: an
       await playFn(true, 'https://www.youtube.com/watch?v=hbsT9OOqvzw')({ data, textChannel, message })
     },
     queue: async ({ data, textChannel, message }: MessageCommandParams) => {
-      const guild = client.guilds.cache.get(data.guild_id)
-      const vc = guild?.voiceStates.cache.get(data.author.id)?.channel
-      const sendFn = async (a: any): Promise<void> => {
+      const guild = client.guilds.cache.get(data.guild_id ?? '')
+      const vc = guild?.voiceStates.cache.get(data.author?.id ?? '')?.channel
+      const sendFn = async (a: sendFnParam): Promise<void> => {
         try {
           await message?.reply(a)
         } catch (e) {
@@ -137,7 +144,7 @@ export const createMessageCommands: (client: Client) => Record<string, (args: an
       const send = async (t: string, t2: string): Promise<void> => {
         await sendFn({
           embeds: [
-            Utils.embed({
+            embedFn({
               description: t2,
               title: t
             })
@@ -154,9 +161,9 @@ export const createMessageCommands: (client: Client) => Record<string, (args: an
       })
     },
     remove: async ({ data, textChannel, message }: MessageCommandParams) => {
-      const guild = client.guilds.cache.get(data.guild_id)
-      const vc = guild?.voiceStates.cache.get(data.author.id)?.channel
-      const sendFn = async (a: any): Promise<void> => {
+      const guild = client.guilds.cache.get(data.guild_id ?? '')
+      const vc = guild?.voiceStates.cache.get(data.author?.id ?? '')?.channel
+      const sendFn = async (a: sendFnParam): Promise<void> => {
         try {
           await message?.reply(a)
         } catch (e) {
@@ -164,7 +171,7 @@ export const createMessageCommands: (client: Client) => Record<string, (args: an
         }
       }
       const send = async (t: string, t2: string): Promise<void> => {
-        await sendFn({ embeds: [Utils.embed(`${t} ${t2}`)] })
+        await sendFn({ embeds: [embedFn(`${t} ${t2}`)] })
       }
       await Remove({
         vc,
@@ -172,7 +179,7 @@ export const createMessageCommands: (client: Client) => Record<string, (args: an
         channel: textChannel,
         send,
         sendIfError: send,
-        index: parseInt(data.content.split(' ').slice(1).join(' ')),
+        index: parseInt(data.content?.split(' ').slice(1).join(' ') ?? '0', 10),
         guild
       })
     },

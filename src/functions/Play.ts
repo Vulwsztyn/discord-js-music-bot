@@ -12,7 +12,7 @@ export async function Play({
   query,
   next,
   requester,
-  guild,
+  guild
 }: PlayParams): Promise<void> {
   if (vc == null) {
     await sendIfError('Join a voice channel bozo')
@@ -85,7 +85,7 @@ export async function Play({
     }
   }
   /* create a player and/or join the member's vc. */
-  if (!player?.connected) {
+  if (player?.connected !== true) {
     player ??= client.music.createPlayer(guild.id)
     player.queue.channel = channel
     player.connect(vc.id, { deafened: true })

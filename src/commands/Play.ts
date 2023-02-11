@@ -1,4 +1,4 @@
-import { command, Command, type CommandContext, Utils } from '@lib'
+import { command, Command, embedFn, genericSendIfError, type CommandContext } from '@lib'
 
 import { ApplicationCommandOptionType } from 'discord.js'
 import { Play as PlayFn } from '../functions'
@@ -29,14 +29,14 @@ export default class Play extends Command {
       channel: ctx.channel,
       send: async (t: string, t2?: string, started: boolean = false) => {
         await ctx.reply(
-          Utils.embed({
+          embedFn({
             description: t,
             ...(t2 != null ? { footer: { text: t2 } } : {})
           }),
           { ephemeral: !started }
         )
       },
-      sendIfError: Utils.genericSendIfError(ctx),
+      sendIfError: genericSendIfError(ctx),
       query,
       next,
       requester: ctx.user.id,

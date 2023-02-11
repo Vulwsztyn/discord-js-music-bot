@@ -1,4 +1,4 @@
-import { command, Command, type CommandContext, Utils } from '@lib'
+import { command, Command, genericSend, genericSendIfError, type CommandContext } from '@lib'
 import { Resume as ResumeFn } from '../functions'
 
 @command({ name: 'resume', description: 'Resumes the playback.' })
@@ -8,8 +8,8 @@ export default class Resume extends Command {
       vc: ctx.guild?.voiceStates?.cache?.get(ctx.user.id)?.channel,
       client: ctx.client,
       channel: ctx.channel,
-      send: Utils.genericSend(ctx),
-      sendIfError: Utils.genericSendIfError(ctx),
+      send: genericSend(ctx),
+      sendIfError: genericSendIfError(ctx),
       guild: ctx.guild
     })
   }

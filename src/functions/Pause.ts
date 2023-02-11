@@ -1,4 +1,4 @@
-import { Utils } from '@lib'
+import { millisecondsToString } from '@lib'
 import { type PauseParams } from './types'
 
 export async function Pause({ vc, sendIfError, send, client, guild }: PauseParams): Promise<void> {
@@ -27,6 +27,6 @@ export async function Pause({ vc, sendIfError, send, client, guild }: PauseParam
     return
   }
   await player.pause(true)
-  const positionHumanReadable = Utils.millisecondsToString(player.position ?? 0)
+  const positionHumanReadable = millisecondsToString(player.position ?? 0)
   await send(`Paused ${current.title} at ${positionHumanReadable}`)
 }

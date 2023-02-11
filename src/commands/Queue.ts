@@ -1,4 +1,4 @@
-import { command, Command, type CommandContext, Utils } from '@lib'
+import { command, Command, embedFn, genericSendIfError, type CommandContext } from '@lib'
 import { Queue as QueueFn } from '../functions'
 
 @command({
@@ -11,15 +11,15 @@ export default class Queue extends Command {
       vc: ctx.guild?.voiceStates?.cache?.get(ctx.user.id)?.channel,
       client: ctx.client,
       channel: ctx.channel,
-      send: async (t: string, str: string) => {
+      send: async (t: string, str: string): Promise<void> => {
         await ctx.reply(
-          Utils.embed({
+          embedFn({
             description: str,
             title: t
           })
         )
       },
-      sendIfError: Utils.genericSendIfError(ctx),
+      sendIfError: genericSendIfError(ctx),
       guild: ctx.guild
     })
   }

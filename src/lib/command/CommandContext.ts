@@ -1,18 +1,13 @@
 import {
   type Guild,
-  type Message,
   EmbedBuilder,
-  type InteractionResponse,
   type Client,
   type CommandInteraction,
   type InteractionReplyOptions,
   type User
 } from 'discord.js'
-import type { APIMessage } from 'discord-api-types/v10'
 import { type Player } from 'lavaclient'
 import type { MessageChannel } from '../index'
-
-type replyReturnType = Message | APIMessage | InteractionResponse<boolean> | void
 
 export class CommandContext {
   readonly interaction: CommandInteraction
@@ -44,35 +39,33 @@ export class CommandContext {
   }
 
   /* overloads: not fetching the reply */
-  reply(content: EmbedBuilder, options?: Omit<InteractionReplyOptions, 'embeds'>): Promise<replyReturnType>
-  reply(content: string, options?: Omit<InteractionReplyOptions, 'content'>): Promise<replyReturnType>
-  reply(options: InteractionReplyOptions): Promise<replyReturnType>
+  reply(content: EmbedBuilder, options?: Omit<InteractionReplyOptions, 'embeds'>): Promise<void>
+  reply(content: string, options?: Omit<InteractionReplyOptions, 'content'>): Promise<void>
+  reply(options: InteractionReplyOptions): Promise<void>
 
   /* overloads: fetch reply */
-  reply(
-    content: EmbedBuilder,
-    options?: Omit<InteractionReplyOptions, 'embeds'> & { fetchReply: true }
-  ): Promise<Message | APIMessage>
+  reply(content: EmbedBuilder, options?: Omit<InteractionReplyOptions, 'embeds'> & { fetchReply: true }): Promise<void>
   reply(
     content: string,
     options?: Omit<InteractionReplyOptions, 'content'> & {
       fetchReply: true
     }
-  ): Promise<Message | APIMessage>
-  reply(options: InteractionReplyOptions & { fetchReply: true }): Promise<Message | APIMessage>
+  ): Promise<void>
+  reply(options: InteractionReplyOptions & { fetchReply: true }): Promise<void>
 
   /* actual method */
   async reply(
     content: string | EmbedBuilder | InteractionReplyOptions,
     options: InteractionReplyOptions = {}
-  ): Promise<Message | APIMessage | InteractionResponse<boolean>> {
+  ): Promise<void> {
     if (typeof content === 'string' || content instanceof EmbedBuilder) {
-      return await this.interaction.reply({
+      await this.interaction.reply({
         [typeof content === 'string' ? 'content' : 'embeds']: typeof content === 'string' ? content : [content],
         ...options
       })
+      return
     }
 
-    return await this.interaction.reply(content)
+    await this.interaction.reply(content)
   }
 }

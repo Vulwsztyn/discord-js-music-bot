@@ -1,10 +1,22 @@
-import { type Client, type Guild, type Message, type TextChannel, type VoiceBasedChannel } from 'discord.js'
+import {
+  type GatewayMessageCreateDispatchData,
+  type GatewayMessageUpdateDispatchData,
+  type Client,
+  type Guild,
+  type Message,
+  type TextChannel,
+  type VoiceBasedChannel
+} from 'discord.js'
 import { type MessageChannel } from '@lib'
+
+type SendFnType = (text: string, ...rest: any[]) => Promise<void>
+
+export type handleMessageType = GatewayMessageCreateDispatchData | GatewayMessageUpdateDispatchData
 
 export interface CommonParams {
   vc: VoiceBasedChannel | null | undefined
-  send: (text: string, ...rest: any[]) => Promise<void>
-  sendIfError: (text: string, ...rest: string[]) => Promise<void>
+  send: SendFnType
+  sendIfError: SendFnType
   channel: MessageChannel
   client: Client
   guild: Guild | null | undefined
@@ -46,7 +58,22 @@ export type PauseParams = CommonParams
 export type ResumeParams = CommonParams
 
 export interface MessageCommandParams {
-  data: any
+  data: handleMessageType
   textChannel: TextChannel
   message: Message<true> | null
 }
+
+export type CommandParamsAll =
+  | MessageCommandParams
+  | CommonParams
+  | JoinParams
+  | PlayParams
+  | SkipParams
+  | SeekParams
+  | LeaveParams
+  | NightcoreParams
+  | PingParams
+  | QueueParams
+  | RemoveParams
+  | PauseParams
+  | ResumeParams

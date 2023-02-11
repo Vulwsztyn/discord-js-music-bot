@@ -1,4 +1,4 @@
-import { Utils } from '@lib'
+import { millisecondsToString, stringToMilliseconds } from '@lib'
 
 import { type SeekParams } from './types'
 
@@ -28,14 +28,14 @@ export async function Seek({ vc, sendIfError, send, client, guild, position, add
     return
   }
 
-  const positionNumerised = (add ? player.position ?? 0 : 0) + Utils.stringToMilliseconds(position)
+  const positionNumerised = (add ? player.position ?? 0 : 0) + stringToMilliseconds(position)
   if (isNaN(positionNumerised)) {
     await sendIfError('Position must be a number')
     return
   }
   await player.seek(positionNumerised)
 
-  const positionHumanReadable = Utils.millisecondsToString(positionNumerised)
+  const positionHumanReadable = millisecondsToString(positionNumerised)
 
   await send(`Sought ${current.title} to ${positionHumanReadable}`)
 }

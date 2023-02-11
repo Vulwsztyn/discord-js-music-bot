@@ -1,4 +1,4 @@
-import { Utils } from '@lib'
+import { millisecondsToString } from '@lib'
 import { type ResumeParams } from './types'
 
 export async function Resume({ vc, sendIfError, send, client, guild }: ResumeParams): Promise<void> {
@@ -28,6 +28,6 @@ export async function Resume({ vc, sendIfError, send, client, guild }: ResumePar
   }
 
   await player.pause(false)
-  const positionHumanReadable = Utils.millisecondsToString(player.position ?? 0)
+  const positionHumanReadable = millisecondsToString(player.position ?? 0)
   await send(`Resumed ${current.title} at ${positionHumanReadable}`)
 }
