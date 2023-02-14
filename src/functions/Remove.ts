@@ -1,35 +1,33 @@
-import {ApplicationCommandOptionType} from "discord.js";
-import {RemoveParams} from "./types";
-import {Utils} from "@lib";
+import { type RemoveParams } from './types'
 
-export async function Remove({
-                                 vc,
-                                 sendIfError,
-                                 send,
-                                 client,
-                                 guild,
-                                 index,
-                             }: RemoveParams) {
+export async function Remove({ vc, sendIfError, send, client, guild, index }: RemoveParams): Promise<void> {
+  if (isNaN(index)) {
+    await sendIfError('index must be a number')
+    return
+  }
 
-    if (isNaN(index)) {
-        return sendIfError("index must be a number")
-    }
-    const player = client.music.players.get(guild!.id);
-    if (!player?.connected) {
-        return sendIfError("I couldn't find a player for this guild.")
-    }
+  if (guild == null) {
+    await sendIfError('Guild not found')
+    return
+  }
+  const player = client.music.players.get(guild.id)
+  if (player?.connected !== true) {
+    await sendIfError("I couldn't find a player for this guild.")
+    return
+  }
 
-    /* check if the user is in the player's voice channel. */
-    if (!vc || player.channelId !== vc.id) {
-        return sendIfError("You're not in my voice channel, bozo.")
-    }
+  /* check if the user is in the player's voice channel. */
+  if (vc == null || player.channelId !== vc.id) {
+    await sendIfError("You're not in my voice channel, bozo.")
+    return
+  }
 
-    /* remove the track from the queue. */
-    const removedTrack = player.queue.remove(index - 1);
-    if (!removedTrack) {
-        /* no track was removed. */
-        return sendIfError("No tracks were removed.")
-    }
+  /* remove the track from the queue. */
+  const removedTrack = player.queue.remove(index - 1)
+  if (removedTrack == null) {
+    await sendIfError('No tracks were removed.')
+    return
+  }
 
-    return send(`The track [**${removedTrack.title}**](${removedTrack.uri}) was removed.`)
+  await send(`The track [**${removedTrack.title}**](${removedTrack.uri}) was removed.`)
 }

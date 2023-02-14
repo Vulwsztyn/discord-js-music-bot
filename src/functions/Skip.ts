@@ -1,31 +1,32 @@
-import {ApplicationCommandOptionType} from "discord.js";
-import {SkipParams} from "./types";
+import { type SkipParams } from './types'
 
+export async function Skip({ vc, sendIfError, send, client, guild }: SkipParams): Promise<void> {
+  if (vc == null) {
+    await sendIfError('Join a voice channel bozo')
+    return
+  }
 
-export async function Skip({
-                               vc,
-                               sendIfError,
-                                send,
-                               client,
-                               guild,
-                           }: SkipParams) {
-    if (!vc) {
-        return sendIfError("Join a voice channel bozo")
-    }
+  if (guild == null) {
+    await sendIfError('Guild not found')
+    return
+  }
+  const player = client.music.players.get(guild.id)
+  if (player?.channelId != null && player.channelId !== vc.id) {
+    await sendIfError(`Join <#${player?.channelId ?? 'no channel found'}> bozo`)
+    return
+  }
+  if (player == null) {
+    await sendIfError("I'm not playing anything bozo")
+    return
+  }
 
-    /* check if a player already exists, if so check if the invoker is in our vc. */
-    let player = client.music.players.get(guild!.id)
-    if (player && player.channelId && player.channelId !== vc.id) {
-        return sendIfError(`Join <#${player.channelId}> bozo`)
-    }
-    if (!player) {
-        return sendIfError("I'm not playing anything bozo")
-    }
-    const current = player.queue.current;
-    if (!current) {
-        return sendIfError("I'm not playing anything bozo")
-    }
-    await player.queue.skip()
-    await player.queue.start()
-    await send(`Skipped ${current.title}`)
+  const current = player.queue.current
+  if (current == null) {
+    await sendIfError("I'm not playing anything bozo")
+    return
+  }
+
+  await player.queue.skip()
+  await player.queue.start()
+  await send(`Skipped ${current.title}`)
 }

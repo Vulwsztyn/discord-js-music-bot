@@ -1,8 +1,5 @@
-import { PingParams} from "./types";
+import { type PingParams } from './types'
 
-export async function Ping({
-                               send,
-                               client,
-                           }: PingParams) {
-    send(`Pong! **Heartbeat:** *${Math.round(client.ws.ping)}ms*`)
+export async function Ping({ send, client }: PingParams): Promise<void> {
+  await send(`Pong! **Heartbeat:** *${Math.round(client.ws.ping)}ms*`)
 }
