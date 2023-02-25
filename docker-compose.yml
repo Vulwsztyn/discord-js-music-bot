@@ -8,7 +8,7 @@ services:
       - .:/app
     depends_on:
       - lavalink
-    command: yarn webstorm
+    command: yarn prod
   lavalink:
     build:
       context: ./Lavalink
