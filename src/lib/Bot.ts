@@ -7,6 +7,8 @@ import { createMessageCommands } from './messageCommands'
 import { type handleMessageType, type MessageCommandParams } from '../functions/types'
 import { messageCommands2 } from './messageCommands2'
 import { guildCheck, textChannelCheck } from './checks'
+import logger from './Logger'
+
 
 export function isKeyOfObject<T extends Object>(key: string | number | symbol, obj: T): key is keyof T {
   return key in obj
@@ -57,6 +59,7 @@ export class Bot extends Client {
   }
 
   async handleMessage(data: handleMessageType): Promise<void> {
+    logger.debug(data)
     if (data.author == null || data.author.id === this.user?.id) return
     const maybeChannel = this.channels.cache.get(data.channel_id)
     if (maybeChannel == null) return

@@ -10,5 +10,6 @@ export const aliases: Record<string, string> = {
   r: 'remove',
   rm: 'remove',
   nc: 'nightcore',
-  piwotop: 'piwonext'
+  piwotop: 'piwonext',
+  j: 'join',
 }

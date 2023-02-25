@@ -19,7 +19,8 @@
     "prettier": "prettier .",
     "format": "prettier-eslint --eslint-config-path src/../.eslintrc.js --config src/../.prettierrc \"src/**/*.ts\"",
     "check-tsc": "tsc --noEmit",
-    "webstorm": "ts-node ./src/index.ts"
+    "webstorm": "ts-node ./src/index.ts | pino-pretty",
+    "prod": "ts-node --transpile-only ./src/index.ts | pino-pretty"
   },
   "dependencies": {
     "@ef-carbon/tspm": "^2.2.5",
@@ -29,7 +30,10 @@
     "dotenv": "^10.0.0",
     "lavaclient": "^4.0.4",
     "module-alias": "^2.2.2",
+    "pino": "^8.11.0",
+    "pino-pretty": "^9.4.0",
     "ramda": "^0.28.0",
+    "ts-node": "^10.9.1",
     "tsconfig-paths": "^4.1.2",
     "zod": "^3.20.6"
   },

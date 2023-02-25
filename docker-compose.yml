@@ -1,0 +1,15 @@
+version: '3.3'
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - .:/app
+    depends_on:
+      - lavalink
+    command: yarn webstorm
+  lavalink:
+    build:
+      context: ./Lavalink
+      dockerfile: Dockerfile
