@@ -43,7 +43,7 @@ const playGeneric = {
 const seekGeneric = {
   schema: SeekParamsSchema,
   checks: [voiceChannelCheck, connectedCheck, currentCheck],
-  regex: '^(?<position>\\d+)$'
+  regex: '^(?<position>\\S+)$'
 }
 
 export const messageCommands2: Record<string, MyCommand> = {
