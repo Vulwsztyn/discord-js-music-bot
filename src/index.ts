@@ -4,6 +4,7 @@ import { load } from '@lavaclient/spotify'
 import { Bot, CommandContext, embedFn, syncCommands } from '@lib'
 import { join } from 'path'
 import { type CacheType, type Interaction } from 'discord.js'
+import logger from './lib/Logger'
 
 load({
   client: {
@@ -31,6 +32,7 @@ client.music.on('trackStart', async (queue, song) => {
   const embed = embedFn(
     `Now playing [**${song.title}**](${song.uri}) ${song.requester != null ? `<@${song.requester}>` : ''}`
   )
+  logger.debug(JSON.stringify(song, null, 2))
   await queue.channel.send({ embeds: [embed] })
 })
 
