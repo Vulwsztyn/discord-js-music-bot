@@ -58,10 +58,10 @@ const chunkTextAndTranslation = (text: string, translation: string) => {
             textChunk = textChunk.slice(maxLength)
             translationChunk = translationChunk.slice(maxLength)
         }
-        if (splitText[i].length > maxLineLength) {
+        if ((splitText[i]?.length ?? 0) > maxLineLength) {
             translationChunk += '\n'
         }
-        if (splitTranslation[i].length > maxLineLength) {
+        if ((splitTranslation[i]?.length ?? 0) > maxLineLength) {
             textChunk += '\n'
         }
     }
