@@ -38,7 +38,7 @@ const chunkTextAndTranslation = (text: string, translation: string) => {
     const splitText = text.split('\n')
     const splitTranslation = translation.split('\n')
     const maxLength = 956
-    const maxLineLength = 35
+    const maxLineLength = 41
     for (let i = 0; i < splitText.length; i++) {
         if (textChunk.length + (splitText[i]?.length ?? 0) > maxLength || translationChunk.length + (splitTranslation[i]?.length ?? 0) > maxLength) {
             chunks.push({
