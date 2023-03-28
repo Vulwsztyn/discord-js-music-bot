@@ -31,7 +31,41 @@ client.music.on('queueFinish', async (queue) => {
     queue.player.disconnect()
     await queue.player.node.destroyPlayer(queue.player.guildId)
 })
-
+const chunkTextAndTranslation = (text: string, translation: string) => {
+    const chunks: { text: string, translation: string }[] = []
+    let textChunk = ''
+    let translationChunk = ''
+    const splitText = text.split('\n')
+    const splitTranslation = translation.split('\n')
+    const maxLength = 956
+    for (let i = 0; i < splitText.length; i++) {
+        if (textChunk.length + splitText[i].length > maxLength || translationChunk.length + splitTranslation[i].length > maxLength) {
+            chunks.push({
+                text: textChunk,
+                translation: translationChunk
+            })
+            textChunk = ''
+            translationChunk = ''
+        }
+        textChunk += splitText[i] + '\n'
+        translationChunk += splitTranslation[i] + '\n'
+        while (textChunk.length > maxLength || translationChunk.length > maxLength) {
+            chunks.push({
+                text: textChunk.slice(0, maxLength),
+                translation: translationChunk.slice(0, maxLength)
+            })
+            textChunk = textChunk.slice(maxLength)
+            translationChunk = translationChunk.slice(maxLength)
+        }
+    }
+    if (textChunk.length > 0 || translationChunk.length > 0) {
+        chunks.push({
+            text: textChunk,
+            translation: translationChunk
+        })
+    }
+    return chunks
+}
 const getLyrics = async (queue: Queue, song: Song) => {
     const {author, title} = song
     const link = `${process.env.LYRICS_API_HOST}/?artist=${author}&title=${title}`
@@ -42,15 +76,19 @@ const getLyrics = async (queue: Queue, song: Song) => {
     })
     const data = schema.safeParse(response.data)
     if (data.success) {
-        const embed = embedFn(
-            'Lyrics'
-        ).addFields(
-            [
-                {name: 'Original', value: data.data.text, inline: true},
-                {name: 'Translation', value: data.data.translation, inline: true}
-            ]
-        )
-        await queue.channel.send({embeds: [embed]})
+        logger.debug(data.data)
+        const chunks = chunkTextAndTranslation(data.data.text, data.data.translation)
+        for (const chunk of chunks) {
+            const embed = embedFn(
+                'Lyrics'
+            ).addFields(
+                [
+                    {name: 'Original', value: chunk.text, inline: true},
+                    {name: 'Translation', value: chunk.translation, inline: true}
+                ]
+            )
+            await queue.channel.send({embeds: [embed]})
+        }
     }
 }
 
