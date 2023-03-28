@@ -48,8 +48,8 @@ const chunkTextAndTranslation = (text: string, translation: string) => {
             textChunk = ''
             translationChunk = ''
         }
-        textChunk += splitText[i] + '\n'
-        translationChunk += splitTranslation[i] + '\n'
+        textChunk += (splitText[i] ?? '') + '\n'
+        translationChunk += (splitTranslation[i] ?? '') + '\n'
         while (textChunk.length > maxLength || translationChunk.length > maxLength) {
             chunks.push({
                 text: textChunk.slice(0, maxLength),
