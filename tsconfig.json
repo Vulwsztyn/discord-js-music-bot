@@ -17,7 +17,7 @@
     "baseUrl": ".",
     "removeComments": true,
     "importHelpers": true,
-
+    "ignoreDeprecations": "5.0",
     /* strict check */
     "strict": true,
     "strictBindCallApply": true,

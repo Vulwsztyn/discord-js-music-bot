@@ -40,7 +40,9 @@ const chunkTextAndTranslation = (text: string, translation: string) => {
     const maxLength = 956
     const maxLineLength = 41
     for (let i = 0; i < splitText.length; i++) {
-        if (textChunk.length + (splitText[i]?.length ?? 0) > maxLength || translationChunk.length + (splitTranslation[i]?.length ?? 0) > maxLength) {
+        const textLength = (splitText[i]?.length ?? 0)
+        const translationLength = (splitTranslation[i]?.length ?? 0)
+        if (textChunk.length + textLength > maxLength || translationChunk.length + translationLength > maxLength) {
             chunks.push({
                 text: textChunk,
                 translation: translationChunk
@@ -58,10 +60,10 @@ const chunkTextAndTranslation = (text: string, translation: string) => {
             textChunk = textChunk.slice(maxLength)
             translationChunk = translationChunk.slice(maxLength)
         }
-        if ((splitText[i]?.length ?? 0) > maxLineLength) {
+        if (textLength > maxLineLength) {
             translationChunk += '\n'
         }
-        if ((splitTranslation[i]?.length ?? 0) > maxLineLength) {
+        if (translationLength > maxLineLength) {
             textChunk += '\n'
         }
     }
@@ -76,7 +78,12 @@ const chunkTextAndTranslation = (text: string, translation: string) => {
 const getLyrics = async (queue: Queue, song: Song) => {
     const {author, title} = song
     const link = `${process.env.LYRICS_API_HOST}/?artist=${author}&title=${title}`
-    const response = await axios.get(link)
+    const response = await axios.get(link).catch((e) => {
+        logger.info(e)
+    })
+    if (!response || response.status !== 200) {
+        return
+    }
     const schema = z.object({
         text: z.string(),
         translation: z.string(),
