@@ -1,4 +1,4 @@
-import { command, Command, type CommandContext, Utils } from '@lib'
+import { command, Command, embedFn, genericSendIfError, type CommandContext } from '@lib'
 import { ApplicationCommandOptionType } from 'discord.js'
 import { Remove as RemoveFn } from '../functions'
 
@@ -22,13 +22,13 @@ export default class Remove extends Command {
       channel: ctx.channel,
       send: async (t: string, str: string) => {
         await ctx.reply(
-          Utils.embed({
+          embedFn({
             description: str,
             title: t
           })
         )
       },
-      sendIfError: Utils.genericSendIfError(ctx),
+      sendIfError: genericSendIfError(ctx),
       guild: ctx.guild,
       index
     })

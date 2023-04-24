@@ -1,4 +1,4 @@
-import { command, Command, type CommandContext, Utils } from '@lib'
+import { command, Command, type CommandContext, genericSend, genericSendIfError } from '@lib'
 import { Nightcore as NightcoreFn } from '../functions'
 
 @command({
@@ -11,8 +11,8 @@ export default class Nightcore extends Command {
       vc: ctx.guild?.voiceStates?.cache?.get(ctx.user.id)?.channel,
       client: ctx.client,
       channel: ctx.channel,
-      send: Utils.genericSend(ctx),
-      sendIfError: Utils.genericSendIfError(ctx),
+      send: genericSend(ctx),
+      sendIfError: genericSendIfError(ctx),
       guild: ctx.guild
     })
   }

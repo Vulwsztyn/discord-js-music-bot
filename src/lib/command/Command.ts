@@ -21,7 +21,7 @@ export class Command {
     this.data = data
   }
 
-  exec(ctx: CommandContext, options?: Record<string, any>): any {
+  async exec(ctx: CommandContext, options?: Record<string, number | string | boolean>): Promise<void> {
     void [ctx, options]
   }
 }

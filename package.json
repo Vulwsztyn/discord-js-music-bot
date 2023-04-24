@@ -8,7 +8,7 @@
   "license": "GPL-3.0-only",
   "private": false,
   "_moduleAliases": {
-    "@lib": "dist/lib"
+    "@lib": "src/lib/index.ts"
   },
   "scripts": {
     "build": "yarn clean && tsc",
@@ -18,18 +18,29 @@
     "lint": "eslint --ignore-path .eslintignore --ext .js,.ts .",
     "prettier": "prettier .",
     "format": "prettier-eslint --eslint-config-path src/../.eslintrc.js --config src/../.prettierrc \"src/**/*.ts\"",
-    "check-tsc": "tsc --noEmit"
+    "check-tsc": "tsc --noEmit",
+    "webstorm": "ts-node ./src/index.ts | pino-pretty",
+    "prod": "ts-node --transpile-only ./src/index.ts | pino-pretty"
   },
   "dependencies": {
+    "@ef-carbon/tspm": "^2.2.5",
     "@lavaclient/queue": "^2.0.4",
     "@lavaclient/spotify": "^3.1.0",
+    "axios": "^1.3.4",
     "discord.js": "^14.3.0",
     "dotenv": "^10.0.0",
     "lavaclient": "^4.0.4",
-    "module-alias": "^2.2.2"
+    "module-alias": "^2.2.2",
+    "pino": "^8.11.0",
+    "pino-pretty": "^9.4.0",
+    "ramda": "^0.28.0",
+    "ts-node": "^10.9.1",
+    "tsconfig-paths": "^4.1.2",
+    "zod": "^3.20.6"
   },
   "devDependencies": {
     "@types/node": "^16.10.2",
+    "@types/ramda": "^0.28.23",
     "@typescript-eslint/eslint-plugin": "^5.0.0",
     "@typescript-eslint/parser": "^5.51.0",
     "eslint": "^8.0.1",
@@ -39,8 +50,6 @@
     "eslint-plugin-n": "^15.0.0",
     "eslint-plugin-promise": "^6.0.0",
     "prettier": "^2.8.4",
-    "prettier-eslint": "^15.0.1",
-    "prettier-eslint-cli": "^7.1.0",
     "rimraf": "^3.0.2",
     "type-fest": "^2.3.2",
     "typescript": "*"

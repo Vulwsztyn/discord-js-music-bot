@@ -8,5 +8,8 @@ export const aliases: Record<string, string> = {
   fs: 'skip',
   forceskip: 'skip',
   r: 'remove',
-  rm: 'remove'
+  rm: 'remove',
+  nc: 'nightcore',
+  piwotop: 'piwonext',
+  j: 'join',
 }

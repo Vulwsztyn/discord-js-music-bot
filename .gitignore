@@ -22,3 +22,5 @@ application.yml
 Lavalink.jar
 
 logs/
+
+docker-compose.override.yml

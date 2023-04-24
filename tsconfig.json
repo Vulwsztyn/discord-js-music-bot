@@ -1,4 +1,8 @@
 {
+  "ts-node": {
+    // Do not forget to `npm i -D tsconfig-paths`
+    "require": ["tsconfig-paths/register"]
+  },
   "compilerOptions": {
     /* compilation */
     "lib": ["ES2020", "ES2020.BigInt", "ES2020.Promise", "ES2020.String"],
@@ -13,7 +17,7 @@
     "baseUrl": ".",
     "removeComments": true,
     "importHelpers": true,
-
+    "ignoreDeprecations": "5.0",
     /* strict check */
     "strict": true,
     "strictBindCallApply": true,
@@ -39,9 +43,9 @@
     "esModuleInterop": true,
     "paths": {
       "@lib": ["src/lib/index.ts"],
-      "@core": ["src/core/*"]
+      "@core/*": ["src/core/*"]
     }
   },
-  "exclude": ["./dist", "./node_modules"],
+  "exclude": ["dist", "node_modules"],
   "include": ["./src"]
 }
